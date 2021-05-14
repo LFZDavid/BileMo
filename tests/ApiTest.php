@@ -23,5 +23,6 @@ class ApiTest extends WebTestCase
     {
         $this->client->request('GET','/api/products');
         $this->assertResponseIsSuccessful();
+        $this->assertJson($this->client->getResponse()->getContent());
     }
 }
