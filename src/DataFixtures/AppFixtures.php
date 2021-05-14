@@ -46,6 +46,24 @@ class AppFixtures extends Fixture
             }
         }
         
+        /** Test fixtures*/
+        
+        $this->loadTestFixtures($manager);
+
         $manager->flush();
+    }
+
+    protected function loadTestFixtures(ObjectManager $manager) {
+
+        $supplier = new Supplier();
+        $supplier->setName('SupplierTest')
+                ->setEmail('supplier@test.com')
+                ->setPwd('pwdtest');
+        for ($i=0; $i < 20; $i++) { 
+            $customer = new Customer();
+            $customer->setName('customertest'.$i);
+            $supplier->addCustomer($customer);
+        }
+        $manager->persist($supplier);
     }
 }
