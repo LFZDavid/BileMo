@@ -55,6 +55,13 @@ class AppFixtures extends Fixture
 
     protected function loadTestFixtures(ObjectManager $manager) {
 
+        $product = new Product();
+        $product->setName('find')
+                ->setBrand('Test')
+                ->setPrice(0)
+                ->setStock(0);
+        $manager->persist($product);
+
         $supplier = new Supplier();
         $supplier->setName('SupplierTest')
                 ->setEmail('supplier@test.com')
