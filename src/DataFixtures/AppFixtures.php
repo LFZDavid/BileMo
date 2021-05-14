@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Customer;
 use App\Entity\Product;
 use App\Entity\Supplier;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -22,6 +23,12 @@ class AppFixtures extends Fixture
                 $supplier->setName($supplierName)
                         ->setEmail(strtolower($supplierName).'@supplier.com')
                         ->setPwd($supplierName);
+
+                for ($i=0; $i < rand(20,100); $i++) { 
+                    $customer = new Customer();
+                    $customer->setName('Cust '.substr($supplier->getName(),0,3). '-'.$i);
+                    $supplier->addCustomer($customer);
+                }
                 $manager->persist($supplier);
         }
 
