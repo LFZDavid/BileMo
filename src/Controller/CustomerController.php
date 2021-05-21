@@ -55,13 +55,13 @@ class CustomerController extends AbstractController
 
         $customer = new Customer();
         $customer->setName($request->get('name'));
+        $supplier->addCustomer($customer);
 
         $errors = $validator->validate($customer);
         if($errors->count() > 0){
             return $this->json($errors, JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        $supplier->addCustomer($customer);
         $manager->persist($supplier);
         $manager->flush();
 
@@ -75,9 +75,7 @@ class CustomerController extends AbstractController
                     ["id" => $customer->getId()]
                 )
             ],
-            [
-                'groups' => 'get_customers'
-            ]
+            ['groups' => 'get_customers']
         );
         
     }
@@ -87,6 +85,6 @@ class CustomerController extends AbstractController
      * */
     public function getSupplier(SupplierRepository $supplierRepository):Supplier
     {
-        return $supplierRepository->findOneBy(["name" => "Orange"]);
+        return $supplierRepository->findOneBy(["name" => "SupplierTest"]);
     }
 }

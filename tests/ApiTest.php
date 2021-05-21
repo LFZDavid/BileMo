@@ -4,6 +4,7 @@ namespace App\Tests;
 
 use App\Repository\CustomerRepository;
 use App\Repository\ProductRepository;
+use App\Repository\SupplierRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Liip\TestFixturesBundle\Test\FixturesTrait;
 
@@ -14,6 +15,8 @@ class ApiTest extends WebTestCase
     private $client;
     private ProductRepository $productRepository;
     private CustomerRepository $customerRepository;
+    private $supplierTest;
+    private SupplierRepository $supplierRepository;
 
     /**
      * This method is called before each test.
@@ -23,6 +26,8 @@ class ApiTest extends WebTestCase
         $this->client = static::createClient();
         $this->productRepository = static::$container->get(ProductRepository::class);
         $this->customerRepository = static::$container->get(CustomerRepository::class);
+        $this->supplierRepository = static::$container->get(SupplierRepository::class);
+        $this->supplierTest = $this->supplierRepository->findOneBy(["name" => "SupplierTest"]);
     }
 
     public function testProductList(): void
@@ -71,9 +76,26 @@ class ApiTest extends WebTestCase
         $this->assertJson($response);
     }
     
-    public function testCreateCustomerWithoutName(): void
+    public function testCreateCustomerWithoutData(): void
     {
         $this->client->request('POST', '/api/customers', []);
+        $this->assertResponseStatusCodeSame(400);
+        $response = $this->client->getResponse()->getContent();
+        $this->assertJson($response);
+    }
+    
+    public function testCreateCustomerWithBlankName(): void
+    {
+        $this->client->request('POST', '/api/customers', ["name"=>""]);
+        $this->assertResponseStatusCodeSame(400);
+        $response = $this->client->getResponse()->getContent();
+        $this->assertJson($response);
+    }
+
+    public function testCreateCustomerNameAlreadyExist(): void
+    {
+        $customer = $this->customerRepository->findOneBy(['name' => 'customertest0']);
+        $this->client->request('POST', '/api/customers', ["name"=>$customer->getName()]);
         $this->assertResponseStatusCodeSame(400);
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
