@@ -70,4 +70,12 @@ class ApiTest extends WebTestCase
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
     }
+    
+    public function testCreateCustomerWithoutName(): void
+    {
+        $this->client->request('POST', '/api/customers', []);
+        $this->assertResponseStatusCodeSame(400);
+        $response = $this->client->getResponse()->getContent();
+        $this->assertJson($response);
+    }
 }

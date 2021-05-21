@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -42,13 +42,25 @@ class CustomerController extends AbstractController
     /**
      * @Route("/api/customers", name="create_customer", methods={"POST"})
      */
-    public function create(Request $request, EntityManagerInterface $manager, UrlGeneratorInterface $urlGenerator, SupplierRepository $supplierRepository):Response
+    public function create(
+        Request $request, 
+        EntityManagerInterface $manager, 
+        UrlGeneratorInterface $urlGenerator, 
+        SupplierRepository $supplierRepository,
+        ValidatorInterface $validator
+        ):Response
     {
         /** Replace it when auth wil be implemented */
         $supplier = $this->getSupplier($supplierRepository);
 
         $customer = new Customer();
         $customer->setName($request->get('name'));
+
+        $errors = $validator->validate($customer);
+        if($errors->count() > 0){
+            return $this->json($errors, JsonResponse::HTTP_BAD_REQUEST);
+        }
+
         $supplier->addCustomer($customer);
         $manager->persist($supplier);
         $manager->flush();
