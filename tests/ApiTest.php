@@ -38,4 +38,11 @@ class ApiTest extends WebTestCase
         $this->assertJson($this->client->getResponse()->getContent());
 
     }
+
+    public function testCustomerList(): void
+    {
+        $this->client->request('GET','/api/customers');
+        $this->assertResponseIsSuccessful();
+        $this->assertJson($this->client->getResponse()->getContent());
+    }
 }
