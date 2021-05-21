@@ -2,6 +2,7 @@
 
 namespace App\Tests;
 
+use App\DataFixtures\AppFixtures;
 use App\Repository\CustomerRepository;
 use App\Repository\ProductRepository;
 use App\Repository\SupplierRepository;
@@ -24,6 +25,7 @@ class ApiTest extends WebTestCase
     public function setUp(): void
     {
         $this->client = static::createClient();
+        $this->loadFixtures([AppFixtures::class]);
         $this->productRepository = static::$container->get(ProductRepository::class);
         $this->customerRepository = static::$container->get(CustomerRepository::class);
         $this->supplierRepository = static::$container->get(SupplierRepository::class);
