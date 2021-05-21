@@ -3,34 +3,78 @@
 namespace App\Controller;
 
 use App\Entity\Customer;
+use App\Entity\Supplier;
 use App\Repository\CustomerRepository;
 use App\Repository\SupplierRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class CustomerController extends AbstractController
 {
     /**
      * @Route("/api/customers", name="get_customers", methods={"GET"})
      */
-    public function customerList(CustomerRepository $customerRepository, SupplierRepository $supplierRepository): Response
+    public function list(CustomerRepository $customerRepository, SupplierRepository $supplierRepository): Response
     {
         /** Replace it when auth wil be implemented */
-        $supplier = $supplierRepository->findOneBy(["name" => "Orange"]);
+        $supplier = $this->getSupplier($supplierRepository);
 
-        return $this->json($customerRepository->findBy(["supplier" => $supplier->getId()]), 200, [], ['groups' => 'get_customers']);
+        return $this->json($customerRepository->findBy(["supplier" => $supplier->getId()]), JsonResponse::HTTP_OK, [], ['groups' => 'get_customers']);
     }
 
     /**
      * @Route("/api/customers/{id}", name="get_customer", methods={"GET"})
      */
-    public function customerShow(Customer $customer, SerializerInterface $serializer):Response
+    public function show(Customer $customer, SerializerInterface $serializer):Response
     {
         $serializedCustomer = $serializer->serialize($customer, 'json', ['groups' => 'get_customers']);
 
-        return new JsonResponse($serializedCustomer, 200, [], true);
+        return new JsonResponse($serializedCustomer, JsonResponse::HTTP_OK, [], true);
+    }
+
+    /**
+     * @Route("/api/customers", name="create_customer", methods={"POST"})
+     */
+    public function create(Request $request, EntityManagerInterface $manager, UrlGeneratorInterface $urlGenerator, SupplierRepository $supplierRepository):Response
+    {
+        /** Replace it when auth wil be implemented */
+        $supplier = $this->getSupplier($supplierRepository);
+
+        $customer = new Customer();
+        $customer->setName($request->get('name'));
+        $supplier->addCustomer($customer);
+        $manager->persist($supplier);
+        $manager->flush();
+
+
+        return $this->json(
+            $customer, 
+            JsonResponse::HTTP_CREATED, 
+            [
+                'Location' => $urlGenerator->generate(
+                    "get_customer", 
+                    ["id" => $customer->getId()]
+                )
+            ],
+            [
+                'groups' => 'get_customers'
+            ]
+        );
+        
+    }
+
+    /**
+     *  Replace it when auth wil be implemented 
+     * */
+    public function getSupplier(SupplierRepository $supplierRepository):Supplier
+    {
+        return $supplierRepository->findOneBy(["name" => "Orange"]);
     }
 }

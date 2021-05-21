@@ -59,4 +59,15 @@ class ApiTest extends WebTestCase
         $this->assertJson($response);
         $this->assertTrue($expectedJson === $response);
     }
+
+    public function testCreateCustomer(): void
+    {
+        $data = ['name' => 'new Customer'];
+
+        $this->client->request('POST', '/api/customers', $data);
+        $this->assertResponseIsSuccessful();
+        $this->assertResponseStatusCodeSame(201);
+        $response = $this->client->getResponse()->getContent();
+        $this->assertJson($response);
+    }
 }
