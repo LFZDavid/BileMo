@@ -32,8 +32,11 @@ class CustomerController extends AbstractController
     /**
      * @Route("/api/customers/{id}", name="get_customer", methods={"GET"})
      */
-    public function show(Customer $customer, SerializerInterface $serializer):Response
+    public function show(?Customer $customer, SerializerInterface $serializer):Response
     {
+        if(!$customer){
+            return $this->json(['message' => 'Resource introuvable'], JsonResponse::HTTP_NOT_FOUND);
+        }
         $serializedCustomer = $serializer->serialize($customer, 'json', ['groups' => 'get_customers']);
 
         return new JsonResponse($serializedCustomer, JsonResponse::HTTP_OK, [], true);

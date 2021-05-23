@@ -8,6 +8,7 @@ use App\Repository\ProductRepository;
 use App\Repository\SupplierRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Liip\TestFixturesBundle\Test\FixturesTrait;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ApiTest extends WebTestCase
 {
@@ -65,6 +66,14 @@ class ApiTest extends WebTestCase
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
         $this->assertTrue($expectedJson === $response);
+    }
+
+    public function testWrongCustomerShow(): void 
+    {
+        $this->client->request('GET', '/api/customers/x');
+        $this->assertResponseStatusCodeSame(JsonResponse::HTTP_NOT_FOUND);
+        $response = $this->client->getResponse()->getContent();
+        $this->assertJson($response);
     }
 
     public function testCreateCustomer(): void
