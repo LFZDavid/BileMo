@@ -13,6 +13,7 @@ class AppFixtures extends Fixture
 
     const BRANDS = ["Apple", "Samsung", "Huawei", "Sony", "Honor", "LG"];
     const SUPPLIERS_NAMES = ["Orange", "SFR", "Bouygues", "Free", "Axocom", "Extenso"];
+    const TEST_CUSTOMERS = ["find", "already_exist", "delete"];
 
     public function load(ObjectManager $manager)
     {
@@ -54,22 +55,37 @@ class AppFixtures extends Fixture
 
     protected function loadTestFixtures(ObjectManager $manager) {
 
+        /** Products */
         $product = new Product();
         $product->setName('find')
                 ->setBrand('Test')
                 ->setPrice(0)
                 ->setStock(0);
         $manager->persist($product);
-
+        
+        /** Suppliers */
         $supplier = new Supplier();
         $supplier->setName('SupplierTest')
                 ->setEmail('supplier@test.com')
                 ->setPwd('pwdtest');
-        for ($i=0; $i < 20; $i++) { 
+
+        /** Customer */
+        foreach (self::TEST_CUSTOMERS as $custName) {
             $customer = new Customer();
-            $customer->setName('customertest'.$i);
+            $customer->setName($custName);
             $supplier->addCustomer($customer);
         }
         $manager->persist($supplier);
+
+        /** Other Supplier and Customer */
+        $otherSupplier = new Supplier();
+        $otherSupplier->setName('OtherSupplier')
+                    ->setEmail('other@test.com')
+                    ->setPwd('pwdtest');
+        $otherCustomer = new Customer();
+        $otherCustomer->setName('otherSupplierCustomer');
+        $otherSupplier->addCustomer($otherCustomer);
+        $manager->persist($otherSupplier);
+        
     }
 }
