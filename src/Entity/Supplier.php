@@ -6,11 +6,12 @@ use App\Repository\SupplierRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=SupplierRepository::class)
  */
-class Supplier
+class Supplier implements UserInterface
 {
     /**
      * @ORM\Id
@@ -38,6 +39,11 @@ class Supplier
      * @ORM\OneToMany(targetEntity=Customer::class, mappedBy="supplier", orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $customers;
+
+    /**
+     * @ORM\Column(type="json")
+     */
+    private $roles = [];
 
     public function __construct()
     {
@@ -113,5 +119,40 @@ class Supplier
         }
 
         return $this;
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function getPassword(): string
+    {
+        return $this->getPwd();
+    }
+
+    public function getSalt(): ?string
+    {
+        return null;
+    }
+
+    public function getUsername(): string
+    {
+        return (string) $this->name;  
+    }
+
+    public function eraseCredentials()
+    {
+
     }
 }

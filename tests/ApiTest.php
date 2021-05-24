@@ -2,22 +2,24 @@
 
 namespace App\Tests;
 
+use App\Entity\Supplier;
 use App\DataFixtures\AppFixtures;
-use App\Repository\CustomerRepository;
 use App\Repository\ProductRepository;
+use App\Repository\CustomerRepository;
 use App\Repository\SupplierRepository;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Liip\TestFixturesBundle\Test\FixturesTrait;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class ApiTest extends WebTestCase
 {
 
     use FixturesTrait;
-    private $client;
+    private KernelBrowser $client;
     private ProductRepository $productRepository;
     private CustomerRepository $customerRepository;
-    private $supplierTest;
+    private Supplier $supplierTest;
     private SupplierRepository $supplierRepository;
 
     /**
@@ -135,6 +137,13 @@ class ApiTest extends WebTestCase
     {
         $this->client->request('DELETE', '/api/customers/'.$id);
         $this->assertResponseStatusCodeSame(JsonResponse::HTTP_NOT_FOUND);
+        $response = $this->client->getResponse()->getContent();
+        $this->assertJson($response);
+    }
+
+    public function testLoginCheck():void
+    {
+        $this->client->request('POST','api/login_check', ['username' => $this->supplierTest->getName(), 'password' => 'pwdtest']);
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
     }
