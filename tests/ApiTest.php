@@ -27,12 +27,33 @@ class ApiTest extends WebTestCase
      */
     public function setUp(): void
     {
-        $this->client = static::createClient();
+        $this->client = $this->createAuthenticatedClient();
         $this->loadFixtures([AppFixtures::class]);
         $this->productRepository = static::$container->get(ProductRepository::class);
         $this->customerRepository = static::$container->get(CustomerRepository::class);
         $this->supplierRepository = static::$container->get(SupplierRepository::class);
         $this->supplierTest = $this->supplierRepository->findOneBy(["name" => "SupplierTest"]);
+    }
+
+    protected function createAuthenticatedClient($username = 'SupplierTest', $password = 'pwdtest')
+    {
+        $client = static::createClient();
+        $client->request(
+        'POST',
+        '/api/login_check',
+        array(),
+        array(),
+        array('CONTENT_TYPE' => 'application/json'),
+        json_encode(array(
+            'username' => $username,
+            'password' => $password,
+            ))
+        );
+
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['token']));
+
+        return $client;
     }
 
     public function testProductList(): void
@@ -137,13 +158,6 @@ class ApiTest extends WebTestCase
     {
         $this->client->request('DELETE', '/api/customers/'.$id);
         $this->assertResponseStatusCodeSame(JsonResponse::HTTP_NOT_FOUND);
-        $response = $this->client->getResponse()->getContent();
-        $this->assertJson($response);
-    }
-
-    public function testLoginCheck():void
-    {
-        $this->client->request('POST','api/login_check', ['username' => $this->supplierTest->getName(), 'password' => 'pwdtest']);
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
     }
