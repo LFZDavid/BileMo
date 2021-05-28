@@ -15,13 +15,13 @@ class Customer
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"customer_list"})
+     * @Groups({"get_customers"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"customer_list"})
+     * @Groups({"get_customers"})
      */
     private $name;
 
