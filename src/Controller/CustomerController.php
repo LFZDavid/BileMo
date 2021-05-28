@@ -98,7 +98,7 @@ class CustomerController extends AbstractController
         $manager->remove($customer);
         $manager->flush();
 
-        return $this->json(['message' => 'Le client à été supprimé'], JsonResponse::HTTP_NO_CONTENT);
+        return $this->json([], JsonResponse::HTTP_NO_CONTENT);
     }
 
 }
