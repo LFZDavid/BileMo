@@ -6,6 +6,7 @@ use App\Entity\Customer;
 use App\Entity\Supplier;
 use App\Repository\CustomerRepository;
 use App\Repository\SupplierRepository;
+use App\Security\Voter\CustomerVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,12 +36,10 @@ class CustomerController extends AbstractController
             return $this->json(['message' => 'Resource introuvable'], JsonResponse::HTTP_NOT_FOUND);
         }
 
-        if($customer->getSupplier()->getId() !== $this->getUser()->getId()){
-            return $this->json(['message' => 'Vous ne pouvez pas accéder à ce client.'], JsonResponse::HTTP_FORBIDDEN);
-        }
+        $this->denyAccessUnlessGranted('view', $customer,'Vous ne pouvez pas accéder à ce client!');
 
         $serializedCustomer = $serializer->serialize($customer, 'json', ['groups' => 'get_customers']);
-
+        
         return new JsonResponse($serializedCustomer, JsonResponse::HTTP_OK, [], true);
     }
 
@@ -85,15 +84,13 @@ class CustomerController extends AbstractController
     /**
      * @Route("/api/customers/{id}", name="delete_customer", methods={"DELETE"})
      */
-    public function delete(?Customer $customer, EntityManagerInterface $manager)
+    public function delete(?Customer $customer, EntityManagerInterface $manager, CustomerVoter $voter)
     {
         if(!$customer){
             return $this->json(['message' => 'Resource introuvable'], JsonResponse::HTTP_NOT_FOUND);
         }
 
-        if($customer->getSupplier()->getId() !== $this->getUser()->getId()){
-            return $this->json(['message' => 'Vous n\'êtes pas authorisé à supprimer ce client!'], JsonResponse::HTTP_FORBIDDEN);
-        }
+        $this->denyAccessUnlessGranted('delete', $customer,'Vous n\'êtes pas authorisé à supprimer ce client!');
 
         $manager->remove($customer);
         $manager->flush();
