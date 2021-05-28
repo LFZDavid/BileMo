@@ -84,6 +84,28 @@ class CustomerController extends AbstractController
     }
 
     /**
+     * @Route("/api/customers/{id}", name="delete_customer", methods={"DELETE"})
+     */
+    public function delete(?Customer $customer, EntityManagerInterface $manager, SupplierRepository $supplierRepository)
+    {
+        /** Replace it when auth wil be implemented */
+        $supplier = $this->getSupplier($supplierRepository);
+
+        if(!$customer){
+            return $this->json(['message' => 'Resource introuvable'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        if($customer->getSupplier()->getId() !== $supplier->getId()){
+            return $this->json(['message' => 'Vous n\'êtes pas authorisé à supprimer ce client!'], JsonResponse::HTTP_FORBIDDEN);
+        }
+
+        $manager->remove($customer);
+        $manager->flush();
+
+        return $this->json(['message' => 'Le client à été supprimé'], JsonResponse::HTTP_NO_CONTENT);
+    }
+
+    /**
      *  Will be replace when auth wil be implemented 
      * */
     public function getSupplier(SupplierRepository $supplierRepository):Supplier
