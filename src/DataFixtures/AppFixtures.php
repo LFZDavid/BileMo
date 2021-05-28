@@ -47,7 +47,6 @@ class AppFixtures extends Fixture
         }
         
         /** Test fixtures*/
-        
         $this->loadTestFixtures($manager);
 
         $manager->flush();
