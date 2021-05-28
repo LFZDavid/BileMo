@@ -143,8 +143,13 @@ class ApiTest extends WebTestCase
         $this->client->request('DELETE', '/api/customers/'.$customer->getId());
         $this->assertResponseStatusCodeSame(JsonResponse::HTTP_NO_CONTENT);
         
+        /**Test empty content response */
+        $response = $this->client->getResponse()->getContent();
+        $this->assertEmpty($response);
+
         /** Test if customer is deleted */
         $this->assertEquals(null, $this->customerRepository->find($customerId));
+
     }
 
     public function testDeleteOtherSuppliersCustomer(): void

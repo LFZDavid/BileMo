@@ -98,7 +98,7 @@ class CustomerController extends AbstractController
         $manager->remove($customer);
         $manager->flush();
 
-        return $this->json([], JsonResponse::HTTP_NO_CONTENT);
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
 }
