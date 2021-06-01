@@ -2,17 +2,18 @@
 
 namespace App\Controller;
 
+use App\ApiProblem;
 use App\Entity\Customer;
-use App\Entity\Supplier;
-use App\Repository\CustomerRepository;
-use App\Repository\SupplierRepository;
 use App\Security\Voter\CustomerVoter;
+use App\Exception\ApiProblemException;
+use App\Repository\CustomerRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -46,18 +47,30 @@ class CustomerController extends AbstractController
         Request $request, 
         EntityManagerInterface $manager, 
         UrlGeneratorInterface $urlGenerator, 
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
+        SerializerInterface $serializer
         ):Response
     {
-        $supplier = $this->getUser();
-        $customer = new Customer();
-        $customer->setName($request->get('name'));
-        $supplier->addCustomer($customer);
+        try {
+            $customer = $serializer->deserialize($request->getContent(), Customer::class,'json');
+        } catch (\Throwable $th) {
+            
+            throw new ApiProblemException(
+                new ApiProblem(
+                    JsonResponse::HTTP_BAD_REQUEST, ApiProblem::TYPE_INVALID_REQUEST_BODY_FORMAT
+                    )
+            );
+            
+        }
+        $supplier = $this->getUser()->addCustomer($customer);
 
+        /** @var ConstraintViolationList $errors */
         $errors = $validator->validate($customer);
         if($errors->count() > 0){
-
-            return $this->json($errors, JsonResponse::HTTP_BAD_REQUEST);
+            $apiProblem = new ApiProblem(JsonResponse::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR);
+            $apiProblem->set('errors', $errors->get(0)->getMessage());
+            
+            throw new ApiProblemException($apiProblem);
         }
 
         $manager->persist($supplier);
@@ -81,7 +94,7 @@ class CustomerController extends AbstractController
     /**
      * @Route("/api/customers/{id}", name="delete_customer", methods={"DELETE"})
      */
-    public function delete(Customer $customer, EntityManagerInterface $manager, CustomerVoter $voter)
+    public function delete(Customer $customer, EntityManagerInterface $manager)
     {
         $this->denyAccessUnlessGranted('delete', $customer,'Vous n\'êtes pas authorisé à supprimer ce client!');
 

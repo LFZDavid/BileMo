@@ -73,6 +73,15 @@ class ApiTest extends WebTestCase
 
     }
 
+    public function testWrongProductShow(): void
+    {
+        $this->client->request('GET','/api/products/0');
+        $this->assertResponseStatusCodeSame(JsonResponse::HTTP_NOT_FOUND);
+        $response = $this->client->getResponse()->getContent();
+        $this->assertJson($response);
+        $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
+    }
+
     public function testCustomerList(): void
     {
         $this->client->request('GET','/api/customers');
@@ -103,9 +112,9 @@ class ApiTest extends WebTestCase
 
     public function testCreateCustomer(): void
     {
-        $data = ['name' => 'new Customer'];
-
-        $this->client->request('POST', '/api/customers', $data);
+        $json = '{"name":"new Customer Test"}';
+       
+        $this->client->request('POST', '/api/customers', [], [], [], $json);
         $this->assertResponseIsSuccessful();
         $this->assertResponseStatusCodeSame(201);
         $response = $this->client->getResponse()->getContent();
@@ -118,6 +127,7 @@ class ApiTest extends WebTestCase
         $this->assertResponseStatusCodeSame(400);
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
+        $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
     }
     
     public function testCreateCustomerWithBlankName(): void
@@ -126,6 +136,7 @@ class ApiTest extends WebTestCase
         $this->assertResponseStatusCodeSame(400);
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
+        $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
     }
 
     public function testCreateCustomerNameAlreadyExist(): void
@@ -135,6 +146,7 @@ class ApiTest extends WebTestCase
         $this->assertResponseStatusCodeSame(400);
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
+        $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
     }
 
     public function testDeleteCustomer():  void
