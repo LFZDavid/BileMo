@@ -81,12 +81,8 @@ class CustomerController extends AbstractController
     /**
      * @Route("/api/customers/{id}", name="delete_customer", methods={"DELETE"})
      */
-    public function delete(?Customer $customer, EntityManagerInterface $manager, CustomerVoter $voter)
+    public function delete(Customer $customer, EntityManagerInterface $manager, CustomerVoter $voter)
     {
-        if(!$customer){
-            return $this->json(['message' => 'Resource introuvable'], JsonResponse::HTTP_NOT_FOUND);
-        }
-
         $this->denyAccessUnlessGranted('delete', $customer,'Vous n\'êtes pas authorisé à supprimer ce client!');
 
         $manager->remove($customer);

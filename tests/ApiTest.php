@@ -159,6 +159,7 @@ class ApiTest extends WebTestCase
         $customer = $this->customerRepository->findOneBy(['name' => 'otherSupplierCustomer']);
         $this->client->request('DELETE', '/api/customers/'.$customer->getId());
         $this->assertResponseStatusCodeSame(JsonResponse::HTTP_FORBIDDEN);
+        $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
     }
 
     public function testWrongCustomerDelete(?int $id = 0): void 
@@ -167,5 +168,6 @@ class ApiTest extends WebTestCase
         $this->assertResponseStatusCodeSame(JsonResponse::HTTP_NOT_FOUND);
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
+        $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
     }
 }
