@@ -95,8 +95,10 @@ class ApiTest extends WebTestCase
     {
         $this->client->request('GET', '/api/customers/'.$id);
         $this->assertResponseStatusCodeSame(JsonResponse::HTTP_NOT_FOUND);
+
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
+        $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
     }
 
     public function testCreateCustomer(): void

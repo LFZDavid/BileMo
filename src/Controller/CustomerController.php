@@ -30,12 +30,8 @@ class CustomerController extends AbstractController
     /**
      * @Route("/api/customers/{id}", name="get_customer", methods={"GET"})
      */
-    public function show(?Customer $customer, SerializerInterface $serializer):Response
+    public function show(Customer $customer, SerializerInterface $serializer):Response
     {
-        if(!$customer){
-            return $this->json(['message' => 'Resource introuvable'], JsonResponse::HTTP_NOT_FOUND);
-        }
-
         $this->denyAccessUnlessGranted('view', $customer,'Vous ne pouvez pas accéder à ce client!');
 
         $serializedCustomer = $serializer->serialize($customer, 'json', ['groups' => 'get_customers']);
@@ -60,6 +56,7 @@ class CustomerController extends AbstractController
 
         $errors = $validator->validate($customer);
         if($errors->count() > 0){
+
             return $this->json($errors, JsonResponse::HTTP_BAD_REQUEST);
         }
 
