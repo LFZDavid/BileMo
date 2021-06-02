@@ -67,9 +67,10 @@ class CustomerController extends AbstractController
         /** @var ConstraintViolationList $errors */
         $errors = $validator->validate($customer);
         if($errors->count() > 0){
+            foreach ($errors->getIterator()->getArrayCopy() as $constraintViolation)
+                $errorMessages[] = $constraintViolation->getMessage();
             $apiProblem = new ApiProblem(JsonResponse::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR);
-            $apiProblem->set('errors', $errors->get(0)->getMessage());
-            
+            $apiProblem->set('errors', $serializer->serialize($errorMessages, 'json'));
             throw new ApiProblemException($apiProblem);
         }
 

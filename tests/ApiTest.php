@@ -142,7 +142,8 @@ class ApiTest extends WebTestCase
     public function testCreateCustomerNameAlreadyExist(): void
     {
         $customer = $this->customerRepository->findOneBy(['name' => 'already_exist']);
-        $this->client->request('POST', '/api/customers', ["name"=>$customer->getName()]);
+        $json = '{"name":"'.$customer->getName().'"}';
+        $this->client->request('POST', '/api/customers', [], [], [], $json);
         $this->assertResponseStatusCodeSame(400);
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
