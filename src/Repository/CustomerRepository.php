@@ -25,7 +25,7 @@ class CustomerRepository extends ServiceEntityRepository
     
     public function getCustomerPaginator(Supplier $supplier, int $page = 1):Paginator
     {
-        $offset = ($page - 1) * self::PAGINATOR_PER_PAGE;
+        $offset = $page ? (($page - 1) * self::PAGINATOR_PER_PAGE) : 0;
         $query = $this->createQueryBuilder('c')
             ->andWhere('c.supplier = :supplier')
             ->setParameter('supplier', $supplier)

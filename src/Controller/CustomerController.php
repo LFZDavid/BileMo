@@ -7,6 +7,7 @@ use App\Entity\Customer;
 use App\Security\Voter\CustomerVoter;
 use App\Exception\ApiProblemException;
 use App\Repository\CustomerRepository;
+use App\Service\PaginatedDataProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,13 +27,14 @@ class CustomerController extends AbstractController
     public function list(Request $request, CustomerRepository $customerRepository): Response
     {
         $page = $request->query->getInt('page', 1);
-        if($page < 1) {
-            // todo : test if request page !> last_page
-            throw new ApiProblemException(
-                new ApiProblem(JsonResponse::HTTP_NOT_FOUND)
-            );
-        }
-        return $this->json($customerRepository->getCustomerPaginator($this->getUser(), $page), JsonResponse::HTTP_OK, [], ['groups' => 'get_customers']);
+        return $this->json(
+            PaginatedDataProvider::getData(
+                $customerRepository->getCustomerPaginator($this->getUser(), $page), 
+                $page
+            ), 
+            JsonResponse::HTTP_OK, 
+            [], 
+            ['groups' => 'get_customers']);
     }
 
     /**

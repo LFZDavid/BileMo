@@ -7,6 +7,7 @@ use App\DataFixtures\AppFixtures;
 use App\Repository\ProductRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\SupplierRepository;
+use App\Service\PaginatedDataProvider;
 use Liip\TestFixturesBundle\Test\FixturesTrait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -75,7 +76,10 @@ class ApiTest extends WebTestCase
     {
         $this->client->request('GET','/api/products');
         $response = $this->client->getResponse()->getContent();
-        $expectedJson = $this->serializer->serialize($this->productRepository->getProductPaginator(), 'json',);
+        $expectedJson = $this->serializer->serialize(PaginatedDataProvider::getData(
+            $this->productRepository->getProductPaginator(), 
+            1
+        ), 'json',);
         $this->assertResponseIsSuccessful();
         $this->assertJson($response);
         $this->assertTrue($expectedJson === $response);
@@ -85,7 +89,10 @@ class ApiTest extends WebTestCase
     {
         $this->client->request('GET','/api/products', ['page' => 2]);
         $response = $this->client->getResponse()->getContent();
-        $expectedJson = $this->serializer->serialize($this->productRepository->getProductPaginator(2), 'json');
+        $expectedJson = $this->serializer->serialize(PaginatedDataProvider::getData(
+            $this->productRepository->getProductPaginator(2), 
+            2
+        ), 'json',);
         $this->assertResponseIsSuccessful();
         $this->assertJson($response);
         $this->assertTrue($expectedJson === $response);
@@ -137,9 +144,13 @@ class ApiTest extends WebTestCase
         $response = $this->client->getResponse()->getContent();
         $expectedJson = 
         $this->serializer->serialize(
-            $this->customerRepository->getCustomerPaginator($this->supplierTest), 'json',
-            ['groups' => 'get_customers']
-        );
+            PaginatedDataProvider::getData(
+            $this->customerRepository->getCustomerPaginator($this->supplierTest, 1), 
+            1
+        ), 
+        'json',
+        ['groups' => 'get_customers']);
+        
         $this->assertResponseIsSuccessful();
         $this->assertJson($response);
         $this->assertTrue($expectedJson === $response);
