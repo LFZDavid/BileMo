@@ -23,9 +23,16 @@ class CustomerController extends AbstractController
     /**
      * @Route("/api/customers", name="get_customers", methods={"GET"})
      */
-    public function list(CustomerRepository $customerRepository): Response
+    public function list(Request $request, CustomerRepository $customerRepository): Response
     {
-        return $this->json($customerRepository->findBy(["supplier" => $this->getUser()->getId()]), JsonResponse::HTTP_OK, [], ['groups' => 'get_customers']);
+        $page = $request->query->getInt('page', 1);
+        if($page < 1) {
+            // todo : test if request page !> last_page
+            throw new ApiProblemException(
+                new ApiProblem(JsonResponse::HTTP_NOT_FOUND)
+            );
+        }
+        return $this->json($customerRepository->getCustomerPaginator($this->getUser(), $page), JsonResponse::HTTP_OK, [], ['groups' => 'get_customers']);
     }
 
     /**
