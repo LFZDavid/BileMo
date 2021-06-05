@@ -7,7 +7,7 @@ use App\Entity\Product;
 use App\Repository\ProductRepository;
 use App\Exception\ApiProblemException;
 use App\Pagination\PaginatedCollection;
-use App\Service\PaginatedCollectionProvider;
+use App\Pagination\PaginationFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,16 +22,12 @@ class ProductController extends AbstractController
     public function productList(Request $request, ProductRepository $productRepository): Response
     {
         $page = $request->query->getInt('page', 1);
-
-        if($page < 1) {
-            throw new ApiProblemException(
-                new ApiProblem(JsonResponse::HTTP_NOT_FOUND)
-            );
-        }
-        
         return $this->json(
-            new PaginatedCollection(
-                $productRepository->getProductPaginator($page),
+            (new PaginationFactory($this->container->get('router')))
+            ->createCollection(
+                $page,
+                $productRepository->getProductPaginator($page), 
+                'get_products'
             )
         );
     }

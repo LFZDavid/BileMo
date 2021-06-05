@@ -4,6 +4,7 @@ namespace App\Tests;
 
 use App\Entity\Supplier;
 use App\DataFixtures\AppFixtures;
+use App\Pagination\PaginationFactory;
 use App\Repository\ProductRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\SupplierRepository;
@@ -12,6 +13,7 @@ use Liip\TestFixturesBundle\Test\FixturesTrait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class ApiTest extends WebTestCase
@@ -24,6 +26,7 @@ class ApiTest extends WebTestCase
     private Supplier $supplierTest;
     private SupplierRepository $supplierRepository;
     private SerializerInterface $serializer;
+    private RouterInterface $router;
     private array $expectedJson = [
         'testProductShow' => '{"id":%d,"name":"find","brand":"Test","stock":0,"price":0}',
         '404' => '{"status":404,"type":"about:blank","title":"Not Found"}',
@@ -42,6 +45,8 @@ class ApiTest extends WebTestCase
         $this->supplierRepository = static::$container->get(SupplierRepository::class);
         $this->supplierTest = $this->supplierRepository->findOneBy(["name" => "SupplierTest"]);
         $this->serializer = static::$container->get(SerializerInterface::class);
+        $this->router = static::$container->get('router');
+
     }
 
     protected function createAuthenticatedClient($username = 'SupplierTest', $password = 'pwdtest')
@@ -76,8 +81,13 @@ class ApiTest extends WebTestCase
     {
         $this->client->request('GET','/api/products');
         $response = $this->client->getResponse()->getContent();
-        $expectedJson = $this->serializer->serialize(new PaginatedCollection(
-            $this->productRepository->getProductPaginator()), 'json',);
+        $expectedJson = $this->serializer->serialize(
+            (new PaginationFactory($this->router))
+            ->createCollection(
+                1,
+                $this->productRepository->getProductPaginator(1), 
+                'get_products'
+            ), 'json');
         $this->assertResponseIsSuccessful();
         $this->assertJson($response);
         $this->assertTrue($expectedJson === $response);
@@ -87,8 +97,13 @@ class ApiTest extends WebTestCase
     {
         $this->client->request('GET','/api/products', ['page' => 2]);
         $response = $this->client->getResponse()->getContent();
-        $expectedJson = $this->serializer->serialize(new PaginatedCollection(
-            $this->productRepository->getProductPaginator(2)), 'json',);
+        $expectedJson = $this->serializer->serialize(
+            (new PaginationFactory($this->router))
+            ->createCollection(
+                2,
+                $this->productRepository->getProductPaginator(2), 
+                'get_products'
+            ), 'json');
         $this->assertResponseIsSuccessful();
         $this->assertJson($response);
         $this->assertTrue($expectedJson === $response);

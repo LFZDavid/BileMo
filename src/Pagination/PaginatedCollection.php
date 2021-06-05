@@ -12,10 +12,11 @@ class PaginatedCollection
     private Paginator $items;
     private int $total;
     private int $count;
+    private array $_links = [];
 
     public function __construct (Paginator $paginator)
     {
-        $this->paginator = $paginator;
+        $this->items = $paginator;
         $this->total = $paginator->count();
         $count =  $paginator->getIterator()->count();
         
@@ -26,4 +27,45 @@ class PaginatedCollection
         }
         $this->count = $count;
     }
+
+    public function getItems(): Paginator
+    {
+        return $this->items;
+    }
+
+    public function getTotal(): int
+    {
+        return $this->total;
+    }
+
+    public function getCount(): int
+    {
+        return $this->count;
+    }
+
+    public function getLinks(): array
+    {
+        return $this->_links;
+    }
+
+    public function addLink(string $ref, string $url): void
+    {
+        $this->_links[$ref] = $url;
+    }
+
+    public function getNbPages():int
+    {
+        return ceil(($this->total / $this->items->getQuery()->getMaxResults()));
+    }
+
+    public function hasNextPage(int $current):bool
+    {
+        return $current < $this->getNbPages();    
+    }
+
+    public function hasPrevPage(int $current):bool
+    {
+        return $current > 1;    
+    }
+
 }

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\ApiProblem;
 use App\Entity\Customer;
+use App\Pagination\PaginationFactory;
 use App\Exception\ApiProblemException;
 use App\Repository\CustomerRepository;
 use App\Pagination\PaginatedCollection;
@@ -26,15 +27,13 @@ class CustomerController extends AbstractController
     public function list(Request $request, CustomerRepository $customerRepository): Response
     {
         $page = $request->query->getInt('page', 1);
-        if($page < 1) {
-            throw new ApiProblemException(
-                new ApiProblem(JsonResponse::HTTP_NOT_FOUND)
-            );
-        }
 
         return $this->json(
-            new PaginatedCollection(
-                $customerRepository->getCustomerPaginator($this->getUser(), $page)
+            (new PaginationFactory($this->container->get('router')))
+            ->createCollection(
+                $page,
+                $customerRepository->getCustomerPaginator($this->getUser(), $page), 
+                'get_customers',
             ),
             JsonResponse::HTTP_OK, 
             [], 
