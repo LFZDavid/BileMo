@@ -1,28 +1,29 @@
 <?php
 
-namespace App\Service;
+namespace App\Pagination;
 
 use App\ApiProblem;
 use App\Exception\ApiProblemException;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class PaginatedDataProvider
+class PaginatedCollection
 {
-    public static function getData(Paginator $paginator, int $page): array
+    private Paginator $items;
+    private int $total;
+    private int $count;
+
+    public function __construct (Paginator $paginator)
     {
+        $this->paginator = $paginator;
+        $this->total = $paginator->count();
         $count =  $paginator->getIterator()->count();
         
-        if($page < 1 || $count < 1) {
+        if($count < 1) {
             throw new ApiProblemException(
                 new ApiProblem(JsonResponse::HTTP_NOT_FOUND)
             );
         }
-
-        return [
-            'total' => $paginator->count(),
-            'count' => $count,
-            'products' => $paginator,
-        ];
+        $this->count = $count;
     }
 }
