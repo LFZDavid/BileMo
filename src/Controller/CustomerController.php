@@ -7,7 +7,6 @@ use App\Entity\Customer;
 use App\Pagination\PaginationFactory;
 use App\Exception\ApiProblemException;
 use App\Repository\CustomerRepository;
-use App\Pagination\PaginatedCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,6 +16,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class CustomerController extends AbstractController
@@ -27,19 +27,14 @@ class CustomerController extends AbstractController
     public function list(Request $request, CustomerRepository $customerRepository): Response
     {
         $page = $request->query->getInt('page', 1);
-
-        return $this->json(
-            (new PaginationFactory($this->container->get('router')))
-            ->createCollection(
+        $paginationFactory = new PaginationFactory($this->container->get('router'));
+        $data = $paginationFactory->createCollection(
                 $page,
                 $customerRepository->getCustomerPaginator($this->getUser(), $page), 
-                'get_customers',
-            ),
-            JsonResponse::HTTP_OK, 
-            [], 
-            ['groups' => 'get_customers']
-        );
-        
+                'get_customers'
+            );
+
+        return $this->json($data, JsonResponse::HTTP_OK, [], [AbstractNormalizer::IGNORED_ATTRIBUTES => ['supplier']]);
     }
 
     /**

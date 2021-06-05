@@ -2,16 +2,12 @@
 
 namespace App\Controller;
 
-use App\ApiProblem;
 use App\Entity\Product;
 use App\Repository\ProductRepository;
-use App\Exception\ApiProblemException;
-use App\Pagination\PaginatedCollection;
 use App\Pagination\PaginationFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ProductController extends AbstractController

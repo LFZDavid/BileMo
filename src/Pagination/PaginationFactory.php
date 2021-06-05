@@ -26,7 +26,12 @@ class PaginationFactory
                 new ApiProblem(JsonResponse::HTTP_NOT_FOUND)
             );
         }
-        $paginatedCollection = new PaginatedCollection($paginator);
+
+        foreach($paginator as $item) 
+            $items[] = $item;
+
+        $paginatedCollection = new PaginatedCollection($paginator, $items, $paginator->count());
+
         $createLinkUrl = function($targetPage) use ($route, $routeParams) {
             return $this->router->generate($route, array_merge($routeParams, ['page' => $targetPage]));
         };
@@ -40,9 +45,9 @@ class PaginationFactory
         
         if($paginatedCollection->hasNextPage($page))
             $paginatedCollection->addLink('next', $createLinkUrl($page + 1));
-
+            
         $paginatedCollection->addLink('last', $createLinkUrl($paginatedCollection->getNbPages()));
-
+        
         return $paginatedCollection;
     }
 }

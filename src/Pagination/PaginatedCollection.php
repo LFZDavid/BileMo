@@ -9,16 +9,18 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class PaginatedCollection
 {
-    private Paginator $items;
+    private Paginator $paginator;
+    private array $items;
     private int $total;
     private int $count;
     private array $_links = [];
 
-    public function __construct (Paginator $paginator)
+    public function __construct (Paginator $paginator, array $items, int $total)
     {
-        $this->items = $paginator;
-        $this->total = $paginator->count();
-        $count = $paginator->getIterator()->count();
+        $this->paginator = $paginator;
+        $this->items = $items;
+        $this->total = $total;
+        $count = count($items);
         
         if($count < 1) {
             throw new ApiProblemException(
@@ -28,7 +30,7 @@ class PaginatedCollection
         $this->count = $count;
     }
 
-    public function getItems(): Paginator
+    public function getItems(): array
     {
         return $this->items;
     }
@@ -55,7 +57,7 @@ class PaginatedCollection
 
     public function getNbPages():int
     {
-        return ceil(($this->total / $this->items->getQuery()->getMaxResults()));
+        return ceil(($this->total / $this->paginator->getQuery()->getMaxResults()));
     }
 
     public function hasNextPage(int $current):bool
