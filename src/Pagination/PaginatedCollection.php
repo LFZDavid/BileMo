@@ -18,7 +18,7 @@ class PaginatedCollection
     {
         $this->items = $paginator;
         $this->total = $paginator->count();
-        $count =  $paginator->getIterator()->count();
+        $count = $paginator->getIterator()->count();
         
         if($count < 1) {
             throw new ApiProblemException(
