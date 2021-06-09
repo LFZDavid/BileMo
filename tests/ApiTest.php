@@ -2,6 +2,8 @@
 
 namespace App\Tests;
 
+include 'ressources/expectedJson.php';
+
 use App\Entity\Supplier;
 use App\DataFixtures\AppFixtures;
 use App\Pagination\PaginationFactory;
@@ -27,10 +29,7 @@ class ApiTest extends WebTestCase
     private SupplierRepository $supplierRepository;
     private SerializerInterface $serializer;
     private RouterInterface $router;
-    private array $expectedJson = [
-        'testProductShow' => '{"id":%d,"name":"find","brand":"Test","stock":0,"price":0}',
-        '404' => '{"status":404,"type":"about:blank","title":"Not Found"}',
-    ];
+    private array $expectedJson;
 
 
     /**
@@ -46,6 +45,7 @@ class ApiTest extends WebTestCase
         $this->supplierTest = $this->supplierRepository->findOneBy(["name" => "SupplierTest"]);
         $this->serializer = static::$container->get(SerializerInterface::class);
         $this->router = static::$container->get('router');
+        $this->expectedJson = EXPECTED_JSON;
 
     }
 
@@ -70,43 +70,22 @@ class ApiTest extends WebTestCase
         return $client;
     }
 
-    public function testProductList(): void
-    {
-        $this->client->request('GET','/api/products');
-        $this->assertResponseIsSuccessful();
-        $this->assertJson($this->client->getResponse()->getContent());
-    }
-
     public function testProductListFirstPage(): void
     {
         $this->client->request('GET','/api/products');
         $response = $this->client->getResponse()->getContent();
-        $expectedJson = $this->serializer->serialize(
-            (new PaginationFactory($this->router))
-            ->createCollection(
-                1,
-                $this->productRepository->getProductPaginator(1), 
-                'get_products'
-            ), 'json');
         $this->assertResponseIsSuccessful();
         $this->assertJson($response);
-        $this->assertTrue($expectedJson === $response);
+        $this->assertTrue($this->expectedJson['testProductListFirstPage'] === $response);
     }
 
     public function testProductListSecondPage(): void
     {
         $this->client->request('GET','/api/products', ['page' => 2]);
         $response = $this->client->getResponse()->getContent();
-        $expectedJson = $this->serializer->serialize(
-            (new PaginationFactory($this->router))
-            ->createCollection(
-                2,
-                $this->productRepository->getProductPaginator(2), 
-                'get_products'
-            ), 'json');
         $this->assertResponseIsSuccessful();
         $this->assertJson($response);
-        $this->assertTrue($expectedJson === $response);
+        $this->assertTrue($this->expectedJson['testProductListSecondPage'] === $response);
     }
 
     public function testWrongProductListPaginator(): void
@@ -145,24 +124,19 @@ class ApiTest extends WebTestCase
     public function testCustomerList(): void
     {
         $this->client->request('GET','/api/customers');
+        $response = $this->client->getResponse()->getContent();
         $this->assertResponseIsSuccessful();
-        $this->assertJson($this->client->getResponse()->getContent());
+        $this->assertJson($response);
+        $this->assertTrue($this->expectedJson['testCustomerList'] === $response);
     }
 
     public function testCustomerListFirstPage(): void
     {
         $this->client->request('GET','/api/customers');
         $response = $this->client->getResponse()->getContent();
-        $expectedJson = $this->serializer->serialize(
-            new PaginatedCollection(
-                $this->customerRepository->getCustomerPaginator($this->supplierTest,1)),
-            'json',
-            ['groups' => 'get_customers']
-        );
-        
         $this->assertResponseIsSuccessful();
         $this->assertJson($response);
-        $this->assertTrue($expectedJson === $response);
+        $this->assertTrue($this->expectedJson['testCustomerListFirstPage'] === $response);
     }
 
     public function testWrongCustomerListPaginator(): void
@@ -183,12 +157,11 @@ class ApiTest extends WebTestCase
     public function testCustomerShow(): void
     {
         $customer = $this->customerRepository->findOneBy(['name' => 'find']);
-        $expectedJson = '{"id":'.$customer->getId().',"name":"'.$customer->getName().'"}';
         $this->client->request('GET', '/api/customers/'. $customer->getId());
-        $this->assertResponseIsSuccessful();
         $response = $this->client->getResponse()->getContent();
+        $this->assertResponseIsSuccessful();
         $this->assertJson($response);
-        $this->assertTrue($expectedJson === $response);
+        $this->assertTrue($this->expectedJson['testCustomerShow'] === $response);
     }
 
     public function testWrongCustomerShow(?int $id = 0): void 
@@ -199,6 +172,7 @@ class ApiTest extends WebTestCase
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
         $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
+        $this->assertTrue($this->expectedJson['testWrongCustomerShow'] === $response);
     }
 
     public function testCreateCustomer(): void
@@ -206,10 +180,10 @@ class ApiTest extends WebTestCase
         $json = '{"name":"new Customer Test"}';
        
         $this->client->request('POST', '/api/customers', [], [], [], $json);
-        $this->assertResponseIsSuccessful();
-        $this->assertResponseStatusCodeSame(201);
         $response = $this->client->getResponse()->getContent();
+        $this->assertResponseStatusCodeSame(201);
         $this->assertJson($response);
+        $this->assertTrue($this->expectedJson['testCreateCustomer'] === $response);
     }
     
     public function testCreateCustomerWithoutData(): void
@@ -219,6 +193,7 @@ class ApiTest extends WebTestCase
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
         $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
+        $this->assertTrue($this->expectedJson['testCreateCustomerWithoutData'] === $response);
     }
     
     public function testCreateCustomerWithBlankName(): void
@@ -228,6 +203,7 @@ class ApiTest extends WebTestCase
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
         $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
+        $this->assertTrue($this->expectedJson['testCreateCustomerWithBlankName'] === $response);
     }
 
     public function testCreateCustomerNameAlreadyExist(): void
@@ -239,6 +215,7 @@ class ApiTest extends WebTestCase
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
         $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
+        $this->assertTrue($this->expectedJson['testCreateCustomerNameAlreadyExist'] === $response);
     }
 
     public function testDeleteCustomer():  void
@@ -264,6 +241,9 @@ class ApiTest extends WebTestCase
         $this->client->request('DELETE', '/api/customers/'.$customer->getId());
         $this->assertResponseStatusCodeSame(JsonResponse::HTTP_FORBIDDEN);
         $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
+        $response = $this->client->getResponse()->getContent();
+        $this->assertJson($response);
+        $this->assertTrue($this->expectedJson['testDeleteOtherSuppliersCustomer'] === $response);
     }
 
     public function testWrongCustomerDelete(?int $id = 0): void 
@@ -273,5 +253,6 @@ class ApiTest extends WebTestCase
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
         $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
+        $this->assertTrue($this->expectedJson['testWrongCustomerDelete'] === $response);
     }
 }
