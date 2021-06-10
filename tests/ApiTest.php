@@ -11,6 +11,7 @@ use Liip\TestFixturesBundle\Test\FixturesTrait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class ApiTest extends WebTestCase
 {
@@ -21,6 +22,12 @@ class ApiTest extends WebTestCase
     private CustomerRepository $customerRepository;
     private Supplier $supplierTest;
     private SupplierRepository $supplierRepository;
+    private SerializerInterface $serializer;
+    private array $expectedJson = [
+        'testProductShow' => '{"id":%d,"name":"find","brand":"Test","stock":0,"price":0}',
+        '404' => '{"status":404,"type":"about:blank","title":"Not Found"}',
+    ];
+
 
     /**
      * This method is called before each test.
@@ -33,6 +40,7 @@ class ApiTest extends WebTestCase
         $this->customerRepository = static::$container->get(CustomerRepository::class);
         $this->supplierRepository = static::$container->get(SupplierRepository::class);
         $this->supplierTest = $this->supplierRepository->findOneBy(["name" => "SupplierTest"]);
+        $this->serializer = static::$container->get(SerializerInterface::class);
     }
 
     protected function createAuthenticatedClient($username = 'SupplierTest', $password = 'pwdtest')
@@ -62,6 +70,37 @@ class ApiTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertJson($this->client->getResponse()->getContent());
     }
+
+    public function testProductListFirstPage(): void
+    {
+        $this->client->request('GET','/api/products');
+        $response = $this->client->getResponse()->getContent();
+        $expectedJson = $this->serializer->serialize($this->productRepository->getProductPaginator(), 'json',);
+        $this->assertResponseIsSuccessful();
+        $this->assertJson($response);
+        $this->assertTrue($expectedJson === $response);
+    }
+
+    public function testProductListSecondPage(): void
+    {
+        $this->client->request('GET','/api/products', ['page' => 2]);
+        $response = $this->client->getResponse()->getContent();
+        $expectedJson = $this->serializer->serialize($this->productRepository->getProductPaginator(2), 'json');
+        $this->assertResponseIsSuccessful();
+        $this->assertJson($response);
+        $this->assertTrue($expectedJson === $response);
+    }
+
+    public function testWrongProductListPaginator(): void
+    {
+        $this->client->request('GET','/api/products', ['page' => "x"]);
+        
+        $response = $this->client->getResponse()->getContent();
+        $this->assertJson($response);
+        $this->assertResponseStatusCodeSame(JsonResponse::HTTP_NOT_FOUND);
+        $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
+        $this->assertTrue($this->expectedJson['404'] === $response);
+    }
     
     public function testProductShow(): void
     {
@@ -69,7 +108,9 @@ class ApiTest extends WebTestCase
         $product = $this->productRepository->findOneBy(['name' => 'find']);
         $this->client->request('GET','/api/products/'.$product->getId());
         $this->assertResponseIsSuccessful();
-        $this->assertJson($this->client->getResponse()->getContent());
+        $response = $this->client->getResponse()->getContent();
+        $this->assertJson($response);
+        $this->assertTrue(sprintf($this->expectedJson['testProductShow'], $product->getId()) === $response);
 
     }
 
@@ -80,6 +121,7 @@ class ApiTest extends WebTestCase
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
         $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
+        $this->assertTrue($this->expectedJson['404'] === $response);
     }
 
     public function testCustomerList(): void
@@ -87,6 +129,35 @@ class ApiTest extends WebTestCase
         $this->client->request('GET','/api/customers');
         $this->assertResponseIsSuccessful();
         $this->assertJson($this->client->getResponse()->getContent());
+    }
+
+    public function testCustomerListFirstPage(): void
+    {
+        $this->client->request('GET','/api/customers');
+        $response = $this->client->getResponse()->getContent();
+        $expectedJson = 
+        $this->serializer->serialize(
+            $this->customerRepository->getCustomerPaginator($this->supplierTest), 'json',
+            ['groups' => 'get_customers']
+        );
+        $this->assertResponseIsSuccessful();
+        $this->assertJson($response);
+        $this->assertTrue($expectedJson === $response);
+    }
+
+    public function testWrongCustomerListPaginator(): void
+    {
+        $this->client->request('GET','/api/customers', ['page' => "x"]);
+        $response = $this->client->getResponse()->getContent();
+        $expectedJson = 
+        $this->serializer->serialize(
+            $this->customerRepository->getCustomerPaginator($this->supplierTest), 'json',
+            ['groups' => 'get_customers']
+        );
+        $this->assertJson($response);
+        $this->assertResponseStatusCodeSame(JsonResponse::HTTP_NOT_FOUND);
+        $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
+        $this->assertTrue($this->expectedJson['404'] === $response);
     }
 
     public function testCustomerShow(): void
