@@ -7,6 +7,7 @@ use App\Entity\Product;
 use App\Entity\Supplier;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class AppFixtures extends Fixture
 {
@@ -14,6 +15,13 @@ class AppFixtures extends Fixture
     const BRANDS = ["Apple", "Samsung", "Huawei", "Sony", "Honor", "LG"];
     const SUPPLIERS_NAMES = ["Orange", "SFR", "Bouygues", "Free", "Axocom", "Extenso"];
     const TEST_CUSTOMERS = ["find", "already_exist", "delete"];
+
+    private $passwordEncoder;
+
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder)
+    {
+        $this->passwordEncoder = $passwordEncoder;
+    }
 
     public function load(ObjectManager $manager)
     {
@@ -23,7 +31,7 @@ class AppFixtures extends Fixture
             $supplier = new Supplier();
                 $supplier->setName($supplierName)
                         ->setEmail(strtolower($supplierName).'@supplier.com')
-                        ->setPwd($supplierName);
+                        ->setPwd($this->passwordEncoder->encodePassword($supplier,$supplierName));
 
                 for ($i=0; $i < rand(20,100); $i++) { 
                     $customer = new Customer();
@@ -67,7 +75,8 @@ class AppFixtures extends Fixture
         $supplier = new Supplier();
         $supplier->setName('SupplierTest')
                 ->setEmail('supplier@test.com')
-                ->setPwd('pwdtest');
+                ->setPwd($this->passwordEncoder->encodePassword($supplier,'pwdtest'));
+                
 
         /** Customer */
         foreach (self::TEST_CUSTOMERS as $custName) {
@@ -81,7 +90,7 @@ class AppFixtures extends Fixture
         $otherSupplier = new Supplier();
         $otherSupplier->setName('OtherSupplier')
                     ->setEmail('other@test.com')
-                    ->setPwd('pwdtest');
+                    ->setPwd($this->passwordEncoder->encodePassword($supplier,'pwdtest'));
         $otherCustomer = new Customer();
         $otherCustomer->setName('otherSupplierCustomer');
         $otherSupplier->addCustomer($otherCustomer);

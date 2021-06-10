@@ -6,6 +6,7 @@ use App\Entity\Customer;
 use App\Entity\Supplier;
 use App\Repository\CustomerRepository;
 use App\Repository\SupplierRepository;
+use App\Security\Voter\CustomerVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,12 +22,9 @@ class CustomerController extends AbstractController
     /**
      * @Route("/api/customers", name="get_customers", methods={"GET"})
      */
-    public function list(CustomerRepository $customerRepository, SupplierRepository $supplierRepository): Response
+    public function list(CustomerRepository $customerRepository): Response
     {
-        /** Replace it when auth wil be implemented */
-        $supplier = $this->getSupplier($supplierRepository);
-
-        return $this->json($customerRepository->findBy(["supplier" => $supplier->getId()]), JsonResponse::HTTP_OK, [], ['groups' => 'get_customers']);
+        return $this->json($customerRepository->findBy(["supplier" => $this->getUser()->getId()]), JsonResponse::HTTP_OK, [], ['groups' => 'get_customers']);
     }
 
     /**
@@ -37,8 +35,11 @@ class CustomerController extends AbstractController
         if(!$customer){
             return $this->json(['message' => 'Resource introuvable'], JsonResponse::HTTP_NOT_FOUND);
         }
-        $serializedCustomer = $serializer->serialize($customer, 'json', ['groups' => 'get_customers']);
 
+        $this->denyAccessUnlessGranted('view', $customer,'Vous ne pouvez pas accéder à ce client!');
+
+        $serializedCustomer = $serializer->serialize($customer, 'json', ['groups' => 'get_customers']);
+        
         return new JsonResponse($serializedCustomer, JsonResponse::HTTP_OK, [], true);
     }
 
@@ -49,13 +50,10 @@ class CustomerController extends AbstractController
         Request $request, 
         EntityManagerInterface $manager, 
         UrlGeneratorInterface $urlGenerator, 
-        SupplierRepository $supplierRepository,
         ValidatorInterface $validator
         ):Response
     {
-        /** Replace it when auth wil be implemented */
-        $supplier = $this->getSupplier($supplierRepository);
-
+        $supplier = $this->getUser();
         $customer = new Customer();
         $customer->setName($request->get('name'));
         $supplier->addCustomer($customer);
@@ -86,30 +84,18 @@ class CustomerController extends AbstractController
     /**
      * @Route("/api/customers/{id}", name="delete_customer", methods={"DELETE"})
      */
-    public function delete(?Customer $customer, EntityManagerInterface $manager, SupplierRepository $supplierRepository)
+    public function delete(?Customer $customer, EntityManagerInterface $manager, CustomerVoter $voter)
     {
-        /** Replace it when auth wil be implemented */
-        $supplier = $this->getSupplier($supplierRepository);
-
         if(!$customer){
             return $this->json(['message' => 'Resource introuvable'], JsonResponse::HTTP_NOT_FOUND);
         }
 
-        if($customer->getSupplier()->getId() !== $supplier->getId()){
-            return $this->json(['message' => 'Vous n\'êtes pas authorisé à supprimer ce client!'], JsonResponse::HTTP_FORBIDDEN);
-        }
+        $this->denyAccessUnlessGranted('delete', $customer,'Vous n\'êtes pas authorisé à supprimer ce client!');
 
         $manager->remove($customer);
         $manager->flush();
 
-        return $this->json(['message' => 'Le client à été supprimé'], JsonResponse::HTTP_NO_CONTENT);
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     *  Will be replace when auth wil be implemented 
-     * */
-    public function getSupplier(SupplierRepository $supplierRepository):Supplier
-    {
-        return $supplierRepository->findOneBy(["name" => "SupplierTest"]);
-    }
 }

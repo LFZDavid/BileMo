@@ -2,22 +2,24 @@
 
 namespace App\Tests;
 
+use App\Entity\Supplier;
 use App\DataFixtures\AppFixtures;
-use App\Repository\CustomerRepository;
 use App\Repository\ProductRepository;
+use App\Repository\CustomerRepository;
 use App\Repository\SupplierRepository;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Liip\TestFixturesBundle\Test\FixturesTrait;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class ApiTest extends WebTestCase
 {
 
     use FixturesTrait;
-    private $client;
+    private KernelBrowser $client;
     private ProductRepository $productRepository;
     private CustomerRepository $customerRepository;
-    private $supplierTest;
+    private Supplier $supplierTest;
     private SupplierRepository $supplierRepository;
 
     /**
@@ -25,12 +27,33 @@ class ApiTest extends WebTestCase
      */
     public function setUp(): void
     {
-        $this->client = static::createClient();
+        $this->client = $this->createAuthenticatedClient();
         $this->loadFixtures([AppFixtures::class]);
         $this->productRepository = static::$container->get(ProductRepository::class);
         $this->customerRepository = static::$container->get(CustomerRepository::class);
         $this->supplierRepository = static::$container->get(SupplierRepository::class);
         $this->supplierTest = $this->supplierRepository->findOneBy(["name" => "SupplierTest"]);
+    }
+
+    protected function createAuthenticatedClient($username = 'SupplierTest', $password = 'pwdtest')
+    {
+        $client = static::createClient();
+        $client->request(
+        'POST',
+        '/api/login_check',
+        array(),
+        array(),
+        array('CONTENT_TYPE' => 'application/json'),
+        json_encode(array(
+            'username' => $username,
+            'password' => $password,
+            ))
+        );
+
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['token']));
+
+        return $client;
     }
 
     public function testProductList(): void
@@ -120,8 +143,13 @@ class ApiTest extends WebTestCase
         $this->client->request('DELETE', '/api/customers/'.$customer->getId());
         $this->assertResponseStatusCodeSame(JsonResponse::HTTP_NO_CONTENT);
         
+        /**Test empty content response */
+        $response = $this->client->getResponse()->getContent();
+        $this->assertEmpty($response);
+
         /** Test if customer is deleted */
         $this->assertEquals(null, $this->customerRepository->find($customerId));
+
     }
 
     public function testDeleteOtherSuppliersCustomer(): void
