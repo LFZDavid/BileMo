@@ -18,12 +18,14 @@ class ProductController extends AbstractController
     public function productList(Request $request, ProductRepository $productRepository): Response
     {
         $page = $request->query->getInt('page', 1);
+        $brand = $request->query->get('brand');
+
         return $this->json(
             (new PaginationFactory($this->container->get('router')))
             ->createCollection(
                 $page,
-                $productRepository->getProductPaginator($page), 
-                'get_products'
+                $productRepository->getProductPaginator($page, $brand), 
+                'get_products',
             )
         );
     }

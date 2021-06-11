@@ -88,6 +88,14 @@ class ApiTest extends WebTestCase
         $this->assertTrue($this->expectedJson['testProductListSecondPage'] === $response);
     }
 
+    public function testProductListWithBrandFilter(): void
+    {
+        $this->client->request('GET', '/api/products', ['brand' => 'Apple']);
+        $response = $this->client->getResponse()->getContent();
+        $this->assertJson($response);
+        $this->assertTrue($this->expectedJson['testProductListWithBrandFilter'] === $response);
+    }
+
     public function testWrongProductListPaginator(): void
     {
         $this->client->request('GET','/api/products', ['page' => "x"]);
