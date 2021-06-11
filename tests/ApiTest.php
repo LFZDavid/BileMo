@@ -115,7 +115,7 @@ class ApiTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
-        $this->assertTrue(sprintf($this->expectedJson['testProductShow'], $product->getId()) === $response);
+        $this->assertTrue($this->expectedJson['testProductShow'] === $response);
 
     }
 

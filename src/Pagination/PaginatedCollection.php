@@ -20,14 +20,7 @@ class PaginatedCollection
         $this->paginator = $paginator;
         $this->items = $items;
         $this->total = $total;
-        $count = count($items);
-        
-        if($count < 1) {
-            throw new ApiProblemException(
-                new ApiProblem(JsonResponse::HTTP_NOT_FOUND)
-            );
-        }
-        $this->count = $count;
+        $this->count = count($items);
     }
 
     public function getItems(): array
