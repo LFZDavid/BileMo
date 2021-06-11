@@ -23,15 +23,21 @@ class CustomerRepository extends ServiceEntityRepository
         parent::__construct($registry, Customer::class);
     }
     
-    public function getCustomerPaginator(Supplier $supplier, int $page = 1):Paginator
+    public function getCustomerPaginator(Supplier $supplier, int $page = 1, ?string $name = ''):Paginator
     {
         $offset = $page ? (($page - 1) * self::PAGINATOR_PER_PAGE) : 0;
         $query = $this->createQueryBuilder('c')
             ->andWhere('c.supplier = :supplier')
             ->setParameter('supplier', $supplier)
             ->setMaxResults(self::PAGINATOR_PER_PAGE)
-            ->setFirstResult($offset)
-            ->getQuery();
+            ->setFirstResult($offset);
+        
+        if($name){
+            $query->andWhere('c.name LIKE :name')
+                ->setParameter('name', '%'.$name.'%');
+        }
+
+        $query->getQuery();
 
         return new Paginator($query);
     }

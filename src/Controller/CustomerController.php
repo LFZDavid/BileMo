@@ -27,10 +27,11 @@ class CustomerController extends AbstractController
     public function list(Request $request, CustomerRepository $customerRepository): Response
     {
         $page = $request->query->getInt('page', 1);
+        $name = $request->query->get('name');
         $paginationFactory = new PaginationFactory($this->container->get('router'));
         $data = $paginationFactory->createCollection(
                 $page,
-                $customerRepository->getCustomerPaginator($this->getUser(), $page), 
+                $customerRepository->getCustomerPaginator($this->getUser(), $page, $name), 
                 'get_customers'
             );
 

@@ -147,6 +147,15 @@ class ApiTest extends WebTestCase
         $this->assertTrue($this->expectedJson['testCustomerListFirstPage'] === $response);
     }
 
+    public function testCustomersWithFilterName(): void
+    {
+        $this->client->request('GET','/api/customers', ['name' => 'find']);
+        $response = $this->client->getResponse()->getContent();
+        $this->assertResponseIsSuccessful();
+        $this->assertJson($response);
+        $this->assertTrue($this->expectedJson['testCustomersWithFilterName'] === $response);
+    }
+
     public function testWrongCustomerListPaginator(): void
     {
         $this->client->request('GET','/api/customers', ['page' => "x"]);

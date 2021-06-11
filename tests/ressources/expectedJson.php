@@ -24,6 +24,8 @@ $expectedJson = [
     
     "testCustomerShow" => '{"id":301,"name":"find"}',
 
+    "testCustomersWithFilterName" =>'{"items":[{"id":301,"name":"find"}],"total":1,"count":1,"links":{"first":"\/api\/customers?page=1","self":"\/api\/customers?page=1","last":"\/api\/customers?page=1"},"nbPages":1}',
+
     "testWrongCustomerShow" => '{"status":404,"type":"about:blank","title":"Not Found"}',
 
     "testCreateCustomer" => '{"id":305,"name":"new Customer Test"}',
