@@ -45,7 +45,7 @@ class CustomerController extends AbstractController
     {
         $this->denyAccessUnlessGranted('view', $customer,'Vous ne pouvez pas accéder à ce client!');
 
-        $serializedCustomer = $serializer->serialize($customer, 'json', ['groups' => 'get_customers']);
+        $serializedCustomer = $serializer->serialize($customer, 'json', [AbstractNormalizer::IGNORED_ATTRIBUTES => ['supplier']]);
         
         return new JsonResponse($serializedCustomer, JsonResponse::HTTP_OK, [], true);
     }
@@ -98,7 +98,7 @@ class CustomerController extends AbstractController
                     ["id" => $customer->getId()]
                 )
             ],
-            ['groups' => 'get_customers']
+            [AbstractNormalizer::IGNORED_ATTRIBUTES => ['supplier']]
         );
         
     }

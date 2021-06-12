@@ -37,7 +37,6 @@ class Customer
     /**
      * @ORM\ManyToOne(targetEntity=Supplier::class, inversedBy="customers")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"get_customers"})
      */
     private $supplier;
 
