@@ -16,6 +16,10 @@ use Swagger\Annotations as SWG;
 
 /**
  * @Cache(maxage="3600", public=true)
+ * @SWG\Response(
+ *      response=404,
+ *      description="Not Found"
+ * )
  */
 class ProductController extends AbstractController
 {

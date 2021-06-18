@@ -7,6 +7,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Swagger\Annotations as SWG;
 
 /**
  * @ORM\Entity(repositoryClass=SupplierRepository::class)
@@ -17,16 +19,19 @@ class Supplier implements UserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @SWG\Property(description="The unique identifier of the supplier.")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @SWG\Property(type="string", maxLength=255)
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @SWG\Property(type="string", maxLength=255)
      */
     private $email;
 
@@ -37,11 +42,18 @@ class Supplier implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity=Customer::class, mappedBy="supplier", orphanRemoval=true, cascade={"persist", "remove"})
+     * @SWG\Schema(
+     *      type="array",
+     *      @SWG\Items(ref=@Model(type=Customer::class, groups={"get_customers"}))
+     *)
      */
     private $customers;
 
     /**
      * @ORM\Column(type="json")
+     * @SWG\Property(type="array", 
+     *      @SWG\Items(type="string")
+     *      )
      */
     private $roles = [];
 

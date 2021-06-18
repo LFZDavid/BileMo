@@ -34,13 +34,17 @@ class Customer
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le nom du client doit être renseigné")
      * @Groups({"get_customers"})
-     * @SWG\Property(type="string", maxLength=255)
+     * @SWG\Property(type="string", 
+     *      maxLength=255, 
+     *      description="The name of the customer. Must be unique by supplier."
+     * )
      */
     private $name;
 
     /**
      * @ORM\ManyToOne(targetEntity=Supplier::class, inversedBy="customers")
      * @ORM\JoinColumn(nullable=false)
+     * @SWG\Schema(ref=@Model(type=Supplier::class))
      */
     private $supplier;
 
