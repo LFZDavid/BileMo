@@ -40,7 +40,7 @@ class ProductController extends AbstractController
      *      name="brand",
      *      in="path",
      *      type="string",
-     *      description="Filter can be use to search prodcut by brand"
+     *      description="Filter can be use to search product by brand"
      * )
      * @SWG\Tag(name="products")
      */

@@ -8,6 +8,8 @@ use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Swagger\Annotations as SWG;
 
 /**
  * @ORM\Entity(repositoryClass=CustomerRepository::class)
@@ -24,6 +26,7 @@ class Customer
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      * @Groups({"get_customers"})
+     * @SWG\Property(description="The unique identifier of the customer.")
      */
     private $id;
 
@@ -31,6 +34,7 @@ class Customer
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le nom du client doit être renseigné")
      * @Groups({"get_customers"})
+     * @SWG\Property(type="string", maxLength=255)
      */
     private $name;
 

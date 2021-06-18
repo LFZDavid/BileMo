@@ -32,7 +32,7 @@ class ItemNormalizer implements ContextAwareNormalizerInterface
         
         $data['link']['self'] = $this->router->generate($routeName, [
             'id' => $item->getId(),
-        ], UrlGeneratorInterface::ABSOLUTE_URL);
+        ]);
 
         return $data;
     }
