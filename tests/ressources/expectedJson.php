@@ -16,9 +16,9 @@ $expectedJson = [
 
     "testWrongProductShow" => '{"status":404,"type":"about:blank","title":"Not Found"}',
 
-    "testCustomerList" => '{"items":[{"id":301,"name":"find","link":{"self":"\/api\/customers\/301"}},{"id":302,"name":"already_exist","link":{"self":"\/api\/customers\/302"}},{"id":303,"name":"delete","link":{"self":"\/api\/customers\/303"}}],"total":3,"count":3,"links":{"first":"\/api\/customers?page=1","self":"\/api\/customers?page=1","last":"\/api\/customers?page=1"},"nbPages":1}',
+    "testCustomerList" => '{"items":[{"id":301,"name":"find","link":{"self":"\/api\/customers\/301"}},{"id":302,"name":"already_exist","link":{"self":"\/api\/customers\/302"}},{"id":303,"name":"to_update","link":{"self":"\/api\/customers\/303"}},{"id":304,"name":"delete","link":{"self":"\/api\/customers\/304"}}],"total":4,"count":4,"links":{"first":"\/api\/customers?page=1","self":"\/api\/customers?page=1","last":"\/api\/customers?page=1"},"nbPages":1}',
 
-    "testCustomerListFirstPage" => '{"items":[{"id":301,"name":"find","link":{"self":"\/api\/customers\/301"}},{"id":302,"name":"already_exist","link":{"self":"\/api\/customers\/302"}},{"id":303,"name":"delete","link":{"self":"\/api\/customers\/303"}}],"total":3,"count":3,"links":{"first":"\/api\/customers?page=1","self":"\/api\/customers?page=1","last":"\/api\/customers?page=1"},"nbPages":1}',
+    "testCustomerListFirstPage" => '{"items":[{"id":301,"name":"find","link":{"self":"\/api\/customers\/301"}},{"id":302,"name":"already_exist","link":{"self":"\/api\/customers\/302"}},{"id":303,"name":"to_update","link":{"self":"\/api\/customers\/303"}},{"id":304,"name":"delete","link":{"self":"\/api\/customers\/304"}}],"total":4,"count":4,"links":{"first":"\/api\/customers?page=1","self":"\/api\/customers?page=1","last":"\/api\/customers?page=1"},"nbPages":1}',
 
     "testWrongCustomerListPaginator" => '{"status":404,"type":"about:blank","title":"Not Found"}',
     
@@ -28,13 +28,21 @@ $expectedJson = [
 
     "testWrongCustomerShow" => '{"status":404,"type":"about:blank","title":"Not Found"}',
 
-    "testCreateCustomer" => '{"id":305,"name":"new Customer Test","link":{"self":"\/api\/customers\/305"}}',
+    "testCreateCustomer" => '{"id":306,"name":"new Customer Test","link":{"self":"\/api\/customers\/306"}}',
+
+    "testUpdateCustomer" => '{"id":303,"name":"updated","link":{"self":"\/api\/customers\/303"}}',
 
     "testCreateCustomerWithoutData" => '{"status":400,"type":"invalid_body_format","title":"Invalid JSON format sent"}',
 
-    "testCreateCustomerWithBlankName" => '{"status":400,"type":"invalid_body_format","title":"Invalid JSON format sent"}',
+    "testUpdateCustomerWithoutData" => '{"status":400,"type":"invalid_body_format","title":"Invalid JSON format sent"}',
+
+    "testCreateCustomerWithBlankName" => '{"errors":{"name":"Le nom du client doit \u00eatre renseign\u00e9"},"status":400,"type":"validation_error","title":"There was a validation error"}',
+    
+    "testUpdateCustomerWithBlankName" => '{"errors":{"name":"Le nom du client doit \u00eatre renseign\u00e9"},"status":400,"type":"validation_error","title":"There was a validation error"}',
 
     "testCreateCustomerNameAlreadyExist" => '{"errors":{"name":"Un client existe d\u00e9j\u00e0 \u00e0 ce nom."},"status":400,"type":"validation_error","title":"There was a validation error"}',
+
+    "testUpdateCustomerNameAlreadyExist" => '{"errors":{"name":"Un client existe d\u00e9j\u00e0 \u00e0 ce nom."},"status":400,"type":"validation_error","title":"There was a validation error"}',
     
     "testDeleteCustomer" => '',
 
@@ -43,6 +51,8 @@ $expectedJson = [
     "testWrongCustomerDelete" => '{"status":404,"type":"about:blank","title":"Not Found"}',
 
     '404' => '{"status":404,"type":"about:blank","title":"Not Found"}',
+
+    '401' => '{"code": 401,"message": "JWT Token not found"}'
 ];
 
 define('EXPECTED_JSON', $expectedJson);

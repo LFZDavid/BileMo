@@ -176,6 +176,74 @@ class CustomerController extends AbstractController
     }
 
     /**
+     * @Route("/api/customers/{id}", name="update_customer", methods={"PUT"})
+     * @SWG\Response(
+     *      response=200,
+     *      description="Returns updated customer",
+     *      @SWG\Schema(ref=@Model(type=Customer::class))
+     * )
+     * @SWG\Response(
+     *      response=400,
+     *      description="Validation error : 'customer's name unavailable!'"
+     * )
+     * @SWG\Parameter(
+     *      name="name",
+     *      in="query",
+     *      type="string",
+     *      description="Customer's name (must be unique)"
+     * )
+     * @SWG\Tag(name="update_customer")
+     */
+    public function update(
+    Request $request,
+    Customer $customer, 
+    EntityManagerInterface $manager, 
+    UrlGeneratorInterface $urlGenerator, 
+    ValidatorInterface $validator,
+    SerializerInterface $serializer
+    ):Response
+    {
+        $this->denyAccessUnlessGranted('edit', $customer,'Vous ne pouvez pas accéder à ce client!');
+
+        try {
+            $updateCustomer = $serializer->deserialize($request->getContent(), Customer::class,'json');
+        } catch (\Throwable $th) {
+            throw new ApiProblemException(
+                new ApiProblem(
+                    JsonResponse::HTTP_BAD_REQUEST, ApiProblem::TYPE_INVALID_REQUEST_BODY_FORMAT
+                    )
+            );
+        }
+        
+        $customer->setName($updateCustomer->getName());
+
+        /** @var ConstraintViolationList $errors */
+        $errors = $validator->validate($customer);
+        if($errors->count() > 0){
+            foreach ($errors->getIterator()->getArrayCopy() as $constraintViolation)
+                /** @var ConstraintViolation  $constraintViolation */
+                $errorMessages[$constraintViolation->getPropertyPath()] = $constraintViolation->getMessage();
+            $apiProblem = new ApiProblem(JsonResponse::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR);
+            $apiProblem->set('errors', $errorMessages, 'json');
+            throw new ApiProblemException($apiProblem);
+        }
+
+        $manager->persist($customer);
+        $manager->flush();
+        return $this->json(
+            $customer, 
+            JsonResponse::HTTP_OK, 
+            [
+                'Location' => $urlGenerator->generate(
+                    "get_customer", 
+                    ["id" => $customer->getId()]
+                )
+            ],
+            [AbstractNormalizer::IGNORED_ATTRIBUTES => ['supplier']]
+        );
+    }
+
+    /**
      * @Route("/api/customers/{id}", name="delete_customer", methods={"DELETE"})
      * @SWG\Response(
      *      response=204,

@@ -14,7 +14,7 @@ class AppFixtures extends Fixture
 
     const BRANDS = ["Apple", "Samsung", "Huawei", "Sony", "Honor", "LG"];
     const SUPPLIERS_NAMES = ["Orange", "SFR", "Bouygues", "Free", "Axocom", "Extenso"];
-    const TEST_CUSTOMERS = ["find", "already_exist", "delete"];
+    const TEST_CUSTOMERS = ["find", "already_exist", "to_update", "delete"];
 
     private $passwordEncoder;
 

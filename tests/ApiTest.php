@@ -215,7 +215,9 @@ class ApiTest extends WebTestCase
     
     public function testCreateCustomerWithBlankName(): void
     {
-        $this->client->request('POST', '/api/customers', ["name"=>""]);
+
+        $json = '{"name":""}';
+        $this->client->request('POST', '/api/customers', [], [], [], $json);
         $this->assertResponseStatusCodeSame(400);
         $response = $this->client->getResponse()->getContent();
         $this->assertJson($response);
@@ -233,6 +235,64 @@ class ApiTest extends WebTestCase
         $this->assertJson($response);
         $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
         $this->assertTrue($this->expectedJson['testCreateCustomerNameAlreadyExist'] === $response);
+    }
+
+    public function testUpdateCustomer():void
+    {
+        $customer = $this->customerRepository->findOneBy(['name' => 'to_update']);
+        $json = '{"name":"updated"}';
+        $this->client->request(
+            'PUT', 
+            '/api/customers/'.$customer->getId(),
+            [],
+            [],
+            [],
+            $json);
+        $response = $this->client->getResponse()->getContent();
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJson($response);
+        $this->assertTrue($this->expectedJson['testUpdateCustomer'] === $response);
+    }
+
+    public function testUpdateCustomerWithoutData(): void
+    {
+        $customer = $this->customerRepository->findOneBy(['name' => 'to_update']);
+        $this->client->request('PUT', '/api/customers/'.$customer->getId(), []);
+        $this->assertResponseStatusCodeSame(400);
+        $response = $this->client->getResponse()->getContent();
+        $this->assertJson($response);
+        $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
+        $this->assertTrue($this->expectedJson['testUpdateCustomerWithoutData'] === $response);
+    }
+
+    public function testUpdateCustomerWithBlankName(): void
+    {
+        $customer = $this->customerRepository->findOneBy(['name' => 'to_update']);
+        $json = '{"name":""}';
+        $this->client->request(
+            'PUT', 
+            '/api/customers/'.$customer->getId(),
+            [],
+            [],
+            [],
+            $json);
+        $this->assertResponseStatusCodeSame(400);
+        $response = $this->client->getResponse()->getContent();
+        $this->assertJson($response);
+        $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
+        $this->assertTrue($this->expectedJson['testUpdateCustomerWithBlankName'] === $response);
+    }
+
+    public function testUpdateCustomerNameAlreadyExist(): void
+    {
+        $customer = $this->customerRepository->findOneBy(['name' => 'to_update']);
+        $json = '{"name":"already_exist"}';
+        $this->client->request('PUT', '/api/customers/'.$customer->getId(), [], [], [], $json);
+        $this->assertResponseStatusCodeSame(400);
+        $response = $this->client->getResponse()->getContent();
+        $this->assertJson($response);
+        $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
+        $this->assertTrue($this->expectedJson['testUpdateCustomerNameAlreadyExist'] === $response);
     }
 
     public function testDeleteCustomer():  void
@@ -272,4 +332,5 @@ class ApiTest extends WebTestCase
         $this->assertResponseHeaderSame('Content-Type', 'application/problem+json');
         $this->assertTrue($this->expectedJson['testWrongCustomerDelete'] === $response);
     }
+
 }
