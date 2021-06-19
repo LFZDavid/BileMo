@@ -88,8 +88,8 @@ git clone https://github.com/LFZDavid/BileMo.git
     <br>send a `POST` request to `api/login_check` with this `JSON` parameter in the body
     ```
     {
-        "username":"SupplierTest",
-        "password":"pwdtest"
+        "username":"SupplierDemo",
+        "password":"pwddemo"
     }
     ```
     This will returns you an unique (temporary) token
