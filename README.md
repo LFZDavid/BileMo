@@ -10,7 +10,7 @@ _developped with Symfony 5.2_
 
 ---
 
-## Technical Requirements : 
+## Technical Requirements
 ---
 * PHP ( version >= 7.2.5 )
 * Database : 
@@ -23,7 +23,7 @@ more infos : _[symfony documentation](https://symfony.com/doc/current/setup.html
 
 ---
 
-## Dependencies :
+## Dependencies
 * doctrine/doctrine-migrations-bundle : "^3.1"
 * phpdocumentor/reflection-docblock : "^5.2"
 * lexik/jwt-authentication-bundle : "^2.11"
@@ -46,7 +46,7 @@ more infos : _[symfony documentation](https://symfony.com/doc/current/setup.html
 * doctrine/orm : "^2.8"
 ---
 
-## Installation : 
+## Installation
 1. ### Get files : 
 ```
 git clone https://github.com/LFZDavid/BileMo.git
@@ -71,27 +71,7 @@ git clone https://github.com/LFZDavid/BileMo.git
 4. ### Jwt authentication
     * Generate [SSH key](https://github.com/lexik/LexikJWTAuthenticationBundle/blob/master/Resources/doc/index.md#installation) for LexikJWTAuthenticationBundle
 
-5. ### Test Api 
-    1. Set :  `Content-Type: application/json` in all your request Header
-    2. Get token : 
-        <br>send a `POST` request to `api/login_check` with this `JSON` parameter in the body
-        ```
-        {
-            "username":"SupplierTest",
-            "password":"pwdtest"
-        }
-        ```
-        This will returns you an unique (temporary) token
-
-    3. Add token to Header : 
-        <br>`Authorization :Bearer token`
-
-6. Documentation :
-    * Access documentation : send a GET request to : `api/doc.json` 
-
-
----
-7. _(optionnel)_ Installer un jeu de données de test/dev
+5. _(optionnel)_ Installer un jeu de données de test/dev
     * Fixtures pour test unitaires et fonctionnels
         ```
         php bin/console d:f:l --env=test
@@ -100,3 +80,27 @@ git clone https://github.com/LFZDavid/BileMo.git
         ```
         php bin/console d:f:l --env=dev
         ```
+---
+
+## Test Api 
+1. Set :  `Content-Type: application/json` in all your request Header
+2. Get token : 
+    <br>send a `POST` request to `api/login_check` with this `JSON` parameter in the body
+    ```
+    {
+        "username":"SupplierTest",
+        "password":"pwdtest"
+    }
+    ```
+    This will returns you an unique (temporary) token
+
+3. Add token to Header : 
+    <br>`Authorization :Bearer token`
+---
+
+## Documentation
+
+* Access documentation : send a GET request to : `api/doc.json` 
+
+
+---
