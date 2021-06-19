@@ -48,39 +48,42 @@ more infos : _[symfony documentation](https://symfony.com/doc/current/setup.html
 
 ## Installation
 1. ### Get files : 
-```
-git clone https://github.com/LFZDavid/BileMo.git
-```
+>```
+>git clone https://github.com/LFZDavid/BileMo.git
+>```
 
 2. ### Install dependencies : 
-```
- composer install
- ```
+>```
+>composer install
+>```
+
 3. ### Database :
-    * set database connection in `.env` file
-    ```
-    # DATABASE_URL="mysql://db_user:db_password@127.0.0.1:3306/db_name?serverVersion=5.7"
-    ```
-    * create database : 
-    ```
-    php bin/console doctrine:database:create
-    ```
-    * build structure : 
-    ```
-    php bin/console doctrine:migrations:migrate
-   ``` 
-   __`Les données de démonstrations sont présents dans la dernière migration`__
+>* set database connection in `.env` file
+>```
+># DATABASE_URL="mysql://db_user:db_password@127.0.0.1:3306/db_name?serverVersion=5.7"
+>```
+>__`Make sure your local server is running`__ and use de command : 
+>```
+>composer init-db
+>```
+>It's a shortcut for : 
+>```
+>php bin/console d:d:d --if-exists --force
+>php bin/console d:d:c
+>php bin/console d:m:m -n
+>```
+>_`Demo data will be installed with the last migration file`_
 
 4. ### Jwt authentication
-    * Generate [SSH key](https://github.com/lexik/LexikJWTAuthenticationBundle/blob/master/Resources/doc/index.md#installation) for LexikJWTAuthenticationBundle with the command : 
-    ``` 
-    php bin/console lexik:jwt:generate-keypair 
-    ```
+>    * Generate [SSH key](https://github.com/lexik/LexikJWTAuthenticationBundle/blob/master/Resources/doc/index.md#installation) for LexikJWTAuthenticationBundle with the command : 
+>    ``` 
+>    php bin/console lexik:jwt:generate-keypair 
+>    ```
 
-5. _(optionnel)_ Installer un jeu de données de test/dev
-    ```
-    composer init-db
-    ```
+5. _(optional)_ Fixtures for test/dev
+>    ```
+>    composer init-db-dev
+>    ```
     
 ---
 
