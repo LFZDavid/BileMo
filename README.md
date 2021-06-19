@@ -58,6 +58,9 @@ git clone https://github.com/LFZDavid/BileMo.git
  ```
 3. ### Database :
     * set database connection in `.env` file
+    ```
+    # DATABASE_URL="mysql://db_user:db_password@127.0.0.1:3306/db_name?serverVersion=5.7"
+    ```
     * create database : 
     ```
     php bin/console doctrine:database:create
@@ -66,20 +69,19 @@ git clone https://github.com/LFZDavid/BileMo.git
     ```
     php bin/console doctrine:migrations:migrate
    ``` 
-   _`les données de démonstrations sont présents dans la dernière migration`_
+   __`Les données de démonstrations sont présents dans la dernière migration`__
 
 4. ### Jwt authentication
-    * Generate [SSH key](https://github.com/lexik/LexikJWTAuthenticationBundle/blob/master/Resources/doc/index.md#installation) for LexikJWTAuthenticationBundle
+    * Generate [SSH key](https://github.com/lexik/LexikJWTAuthenticationBundle/blob/master/Resources/doc/index.md#installation) for LexikJWTAuthenticationBundle with the command : 
+    ``` 
+    php bin/console lexik:jwt:generate-keypair 
+    ```
 
 5. _(optionnel)_ Installer un jeu de données de test/dev
-    * Fixtures pour test unitaires et fonctionnels
-        ```
-        php bin/console d:f:l --env=test
-        ```
-    * Fixtures pour dev
-        ```
-        php bin/console d:f:l --env=dev
-        ```
+    ```
+    composer init-db
+    ```
+    
 ---
 
 ## Test Api 

@@ -70,15 +70,20 @@
         "post-update-cmd": [
             "@auto-scripts"
         ],
-        "reset-db": [
-            "php bin/console d:d:d --force --env=dev",
+        "init-db-dev": [
+            "php bin/console d:d:d --if-exists --force --env=dev",
             "php bin/console d:d:c --env=dev",
             "php bin/console d:m:m --env=dev -n",
             "php bin/console d:f:l --env=dev --append",
-            "php bin/console d:d:d --force --env=test",
+            "php bin/console d:d:d --if-exists --force --env=test",
             "php bin/console d:d:c --env=test",
             "php bin/console d:m:m --env=test -n",
             "php bin/console d:f:l --env=test --append"
+        ],
+        "init-db": [
+            "php bin/console d:d:d --if-exists --force",
+            "php bin/console d:d:c",
+            "php bin/console d:m:m -n"
         ]
     },
     "conflict": {
