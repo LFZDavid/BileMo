@@ -54,6 +54,7 @@ more infos : _[symfony documentation](https://symfony.com/doc/current/setup.html
 
 2. ### Install dependencies : 
 >```
+>cd Bilemo/
 >composer install
 >```
 
