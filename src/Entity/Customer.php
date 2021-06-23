@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\CustomerRepository;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -36,6 +37,7 @@ class Customer
     /**
      * @ORM\ManyToOne(targetEntity=Supplier::class, inversedBy="customers")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"get_customers"})
      */
     private $supplier;
 

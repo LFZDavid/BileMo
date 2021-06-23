@@ -2,14 +2,12 @@
 
 namespace App\Controller;
 
-use App\ApiProblem;
 use App\Entity\Product;
 use App\Repository\ProductRepository;
-use App\Exception\ApiProblemException;
+use App\Pagination\PaginationFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ProductController extends AbstractController
@@ -20,14 +18,16 @@ class ProductController extends AbstractController
     public function productList(Request $request, ProductRepository $productRepository): Response
     {
         $page = $request->query->getInt('page', 1);
-        if($page < 1) {
-            // todo : test if request page !> last_page
-            throw new ApiProblemException(
-                new ApiProblem(JsonResponse::HTTP_NOT_FOUND)
-            );
-                
-        }
-        return $this->json($productRepository->getProductPaginator($page));
+        $brand = $request->query->get('brand');
+
+        return $this->json(
+            (new PaginationFactory($this->container->get('router')))
+            ->createCollection(
+                $page,
+                $productRepository->getProductPaginator($page, $brand), 
+                'get_products',
+            )
+        );
     }
 
     /**

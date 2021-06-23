@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\ApiProblem;
 use App\Entity\Customer;
-use App\Security\Voter\CustomerVoter;
+use App\Pagination\PaginationFactory;
 use App\Exception\ApiProblemException;
 use App\Repository\CustomerRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,6 +16,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class CustomerController extends AbstractController
@@ -26,13 +27,15 @@ class CustomerController extends AbstractController
     public function list(Request $request, CustomerRepository $customerRepository): Response
     {
         $page = $request->query->getInt('page', 1);
-        if($page < 1) {
-            // todo : test if request page !> last_page
-            throw new ApiProblemException(
-                new ApiProblem(JsonResponse::HTTP_NOT_FOUND)
+        $name = $request->query->get('name');
+        $paginationFactory = new PaginationFactory($this->container->get('router'));
+        $data = $paginationFactory->createCollection(
+                $page,
+                $customerRepository->getCustomerPaginator($this->getUser(), $page, $name), 
+                'get_customers'
             );
-        }
-        return $this->json($customerRepository->getCustomerPaginator($this->getUser(), $page), JsonResponse::HTTP_OK, [], ['groups' => 'get_customers']);
+
+        return $this->json($data, JsonResponse::HTTP_OK, [], [AbstractNormalizer::IGNORED_ATTRIBUTES => ['supplier']]);
     }
 
     /**

@@ -33,7 +33,7 @@ class AppFixtures extends Fixture
                         ->setEmail(strtolower($supplierName).'@supplier.com')
                         ->setPwd($this->passwordEncoder->encodePassword($supplier,$supplierName));
 
-                for ($i=0; $i < rand(20,100); $i++) { 
+                for ($i=0; $i < 50; $i++) { 
                     $customer = new Customer();
                     $customer->setName('Cust '.substr($supplier->getName(),0,3). '-'.$i);
                     $supplier->addCustomer($customer);
@@ -43,13 +43,13 @@ class AppFixtures extends Fixture
 
         /** Products */
         foreach (self::BRANDS as $brand) {
-            for ($i=0; $i < rand(3,10); $i++) { 
+            for ($i=0; $i < 8; $i++) { 
 
                 $product = new Product();
                 $product->setBrand($brand)
                         ->setName($brand.'-'.$i)
-                        ->setPrice(rand(4999,119999) / 100)
-                        ->setStock(rand(0, 5000));
+                        ->setPrice(($i * 1234)/ 100)
+                        ->setStock((234));
 
                 $manager->persist($product);
             }

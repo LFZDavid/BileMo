@@ -22,13 +22,18 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
-    public function getProductPaginator(int $page = 1):Paginator
+    public function getProductPaginator(int $page = 1, ?string $brand = ''):Paginator
     {
-        $offset = ($page - 1) * self::PAGINATOR_PER_PAGE;
+        $offset = $page ? (($page - 1) * self::PAGINATOR_PER_PAGE) : 0;
         $query = $this->createQueryBuilder('p')
             ->setMaxResults(self::PAGINATOR_PER_PAGE)
-            ->setFirstResult($offset)
-            ->getQuery();
+            ->setFirstResult($offset);
+        if($brand){
+            $query->andWhere('p.brand LIKE :brand')
+                ->setParameter('brand', '%'.$brand.'%');
+        }
+
+        $query->getQuery();
         return new Paginator($query);
     }
 }
