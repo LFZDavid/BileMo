@@ -10,8 +10,8 @@ use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
 
 class ItemNormalizer implements ContextAwareNormalizerInterface
 {
-    private $router;
-    private $normalizer;
+    private UrlGeneratorInterface $router;
+    private ObjectNormalizer $normalizer;
 
     public function __construct(UrlGeneratorInterface $router, ObjectNormalizer $normalizer)
     {
