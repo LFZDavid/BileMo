@@ -10,14 +10,43 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use Swagger\Annotations as SWG;
 
 /**
  * @Cache(maxage="3600", public=true)
+ * @SWG\Response(
+ *      response=404,
+ *      description="Not Found"
+ * )
  */
 class ProductController extends AbstractController
 {
     /**
      * @Route("/api/products", name="get_products", methods={"GET"})
+     * List of products (paginated)
+     * @SWG\Response(
+     *      response=200,
+     *      description="Returns the paginated list of products.",
+     *      @SWG\Schema(
+     *          type="array",
+     *          @SWG\Items(ref=@Model(type=Product::class))    
+     *      )
+     * )
+     * @SWG\Parameter(
+     *      name="page",
+     *      in="path",
+     *      type="integer",
+     *      description="The page number to display"
+     * )
+     * @SWG\Parameter(
+     *      name="brand",
+     *      in="path",
+     *      type="string",
+     *      description="Filter can be use to search product by brand"
+     * )
+     * @SWG\Tag(name="products")
      */
     public function productList(Request $request, ProductRepository $productRepository): Response
     {
@@ -36,6 +65,18 @@ class ProductController extends AbstractController
 
     /**
      * @Route("/api/products/{id}",  name="get_product", methods={"GET"})
+     * @SWG\Response(
+     *      response=200,
+     *      description="Returns details of a product.",
+     *      @SWG\Schema(ref=@Model(type=Product::class))
+     * )
+     * @SWG\Parameter(
+     *      name="id",
+     *      in="path",
+     *      type="integer",
+     *      description="Unique product's id"
+     * )
+     * @SWG\Tag(name="product")
      */
     public function productShow(Product $product): Response
     {

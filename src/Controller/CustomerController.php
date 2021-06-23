@@ -18,11 +18,54 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use Swagger\Annotations as SWG;
 
+/**
+ * @SWG\Parameter(
+ *     name="Authorization",
+ *     required= true,
+ *     in="header",
+ *     type="string",
+ *     description="Bearer Token",
+ * )
+ *
+ * @SWG\Response(
+ *      response="401",
+ *      description="Unauthorized: Expired JWT Token or JWT Token not found",
+ * )
+ * @SWG\Response(
+ *      response="403",
+ *      description="Unauthorized: You're not allowed to access to that ressource",
+ * )
+ * @Security(name="Bearer")
+ */
 class CustomerController extends AbstractController
 {
     /**
      * @Route("/api/customers", name="get_customers", methods={"GET"})
+     * @SWG\Response(
+     *      response=200,
+     *      description="Returns list of supplier's customers",
+     *      @SWG\Schema(
+     *          type="array",
+     *          @SWG\Items(ref=@Model(type=Customer::class))
+     *      )
+     * )
+     * @SWG\Parameter(
+     *      name="page",
+     *      in="path",
+     *      type="integer",
+     *      description="The page number to display"
+     * )
+     * @SWG\Parameter(
+     *      name="name",
+     *      in="path",
+     *      type="string",
+     *      description="Filter can be use to search customer by name"
+     * )
+     * @SWG\Tag(name="get_customers")
      */
     public function list(Request $request, CustomerRepository $customerRepository): Response
     {
@@ -40,6 +83,19 @@ class CustomerController extends AbstractController
 
     /**
      * @Route("/api/customers/{id}", name="get_customer", methods={"GET"})
+     * @SWG\Response(
+     *      response=200,
+     *      description="Returns details of a customer.",
+     *      @SWG\Schema(ref=@Model(type=Customer::class))
+     * )
+     
+     * @SWG\Parameter(
+     *      name="id",
+     *      in="path",
+     *      type="integer",
+     *      description="Unique customer's id"
+     * )
+     * @SWG\Tag(name="get_customer")
      */
     public function show(Customer $customer, SerializerInterface $serializer):Response
     {
@@ -52,6 +108,22 @@ class CustomerController extends AbstractController
 
     /**
      * @Route("/api/customers", name="create_customer", methods={"POST"})
+     * @SWG\Response(
+     *      response=201,
+     *      description="Returns created customer",
+     *      @SWG\Schema(ref=@Model(type=Customer::class))
+     * )
+     * @SWG\Response(
+     *      response=400,
+     *      description="Validation error : 'customer's name unavailable!'"
+     * )
+     * @SWG\Parameter(
+     *      name="name",
+     *      in="query",
+     *      type="string",
+     *      description="Customer's name (must be unique)"
+     * )
+     * @SWG\Tag(name="create_customer")
      */
     public function create(
         Request $request, 
@@ -105,6 +177,11 @@ class CustomerController extends AbstractController
 
     /**
      * @Route("/api/customers/{id}", name="delete_customer", methods={"DELETE"})
+     * @SWG\Response(
+     *      response=204,
+     *      description="Successful operation"
+     * )
+     * @SWG\Tag(name="delete_customer")
      */
     public function delete(Customer $customer, EntityManagerInterface $manager)
     {
