@@ -54,13 +54,13 @@ class CustomerController extends AbstractController
      * )
      * @SWG\Parameter(
      *      name="page",
-     *      in="path",
+     *      in="query",
      *      type="integer",
      *      description="The page number to display"
      * )
      * @SWG\Parameter(
      *      name="name",
-     *      in="path",
+     *      in="query",
      *      type="string",
      *      description="Filter can be use to search customer by name"
      * )
@@ -118,8 +118,9 @@ class CustomerController extends AbstractController
      * )
      * @SWG\Parameter(
      *      name="name",
-     *      in="query",
+     *      in="body",
      *      type="string",
+     *      @SWG\Schema(@SWG\Property(property="name", type="string", example="John Doe")),
      *      description="Customer's name (must be unique)"
      * )
      * @SWG\Tag(name="Customer")
@@ -178,9 +179,9 @@ class CustomerController extends AbstractController
      * )
      * @SWG\Parameter(
      *      name="name",
-     *      in="query",
+     *      in="body",
      *      type="string",
-     *      description="Customer's name (must be unique)"
+     *      @SWG\Schema(@SWG\Property(property="name", type="string", example="John Doe")),
      * )
      * @SWG\Tag(name="Customer")
      */
