@@ -46,7 +46,7 @@ class ProductController extends AbstractController
      *      type="string",
      *      description="Filter can be use to search product by brand"
      * )
-     * @SWG\Tag(name="products")
+     * @SWG\Tag(name="Product")
      */
     public function productList(Request $request, ProductRepository $productRepository): Response
     {
@@ -76,7 +76,7 @@ class ProductController extends AbstractController
      *      type="integer",
      *      description="Unique product's id"
      * )
-     * @SWG\Tag(name="product")
+     * @SWG\Tag(name="Product")
      */
     public function productShow(Product $product): Response
     {

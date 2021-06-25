@@ -64,7 +64,7 @@ class CustomerController extends AbstractController
      *      type="string",
      *      description="Filter can be use to search customer by name"
      * )
-     * @SWG\Tag(name="get_customers")
+     * @SWG\Tag(name="Customer")
      */
     public function list(Request $request, CustomerRepository $customerRepository): Response
     {
@@ -94,7 +94,7 @@ class CustomerController extends AbstractController
      *      type="integer",
      *      description="Unique customer's id"
      * )
-     * @SWG\Tag(name="get_customer")
+     * @SWG\Tag(name="Customer")
      */
     public function show(Customer $customer, SerializerInterface $serializer):Response
     {
@@ -122,7 +122,7 @@ class CustomerController extends AbstractController
      *      type="string",
      *      description="Customer's name (must be unique)"
      * )
-     * @SWG\Tag(name="create_customer")
+     * @SWG\Tag(name="Customer")
      */
     public function create(
         Request $request, 
@@ -143,7 +143,7 @@ class CustomerController extends AbstractController
             );
             
         }
-        
+
         $supplier = $this->getUser()->addCustomer($customer);
 
         $checker->check($customer);
@@ -182,7 +182,7 @@ class CustomerController extends AbstractController
      *      type="string",
      *      description="Customer's name (must be unique)"
      * )
-     * @SWG\Tag(name="update_customer")
+     * @SWG\Tag(name="Customer")
      */
     public function update(
     Request $request,
@@ -230,7 +230,7 @@ class CustomerController extends AbstractController
      *      response=204,
      *      description="Successful operation"
      * )
-     * @SWG\Tag(name="delete_customer")
+     * @SWG\Tag(name="Customer")
      */
     public function delete(Customer $customer, EntityManagerInterface $manager)
     {
