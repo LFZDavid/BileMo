@@ -8,13 +8,12 @@ use App\Pagination\PaginationFactory;
 use App\Exception\ApiProblemException;
 use App\Repository\CustomerRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\EntityChecker;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -129,8 +128,8 @@ class CustomerController extends AbstractController
         Request $request, 
         EntityManagerInterface $manager, 
         UrlGeneratorInterface $urlGenerator, 
-        ValidatorInterface $validator,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
+        EntityChecker $checker
         ):Response
     {
         try {
@@ -144,19 +143,10 @@ class CustomerController extends AbstractController
             );
             
         }
+        
         $supplier = $this->getUser()->addCustomer($customer);
 
-        /** @var ConstraintViolationList $errors */
-        $errors = $validator->validate($customer);
-        if($errors->count() > 0){
-            foreach ($errors->getIterator()->getArrayCopy() as $constraintViolation)
-                /** @var ConstraintViolation  $constraintViolation */
-                $errorMessages[$constraintViolation->getPropertyPath()] = $constraintViolation->getMessage();
-            $apiProblem = new ApiProblem(JsonResponse::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR);
-            $apiProblem->set('errors', $errorMessages, 'json');
-            throw new ApiProblemException($apiProblem);
-        }
-
+        $checker->check($customer);
         $manager->persist($supplier);
         $manager->flush();
 
@@ -199,7 +189,7 @@ class CustomerController extends AbstractController
     Customer $customer, 
     EntityManagerInterface $manager, 
     UrlGeneratorInterface $urlGenerator, 
-    ValidatorInterface $validator,
+    EntityChecker $checker,
     SerializerInterface $serializer
     ):Response
     {
@@ -217,16 +207,7 @@ class CustomerController extends AbstractController
         
         $customer->setName($updateCustomer->getName());
 
-        /** @var ConstraintViolationList $errors */
-        $errors = $validator->validate($customer);
-        if($errors->count() > 0){
-            foreach ($errors->getIterator()->getArrayCopy() as $constraintViolation)
-                /** @var ConstraintViolation  $constraintViolation */
-                $errorMessages[$constraintViolation->getPropertyPath()] = $constraintViolation->getMessage();
-            $apiProblem = new ApiProblem(JsonResponse::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR);
-            $apiProblem->set('errors', $errorMessages, 'json');
-            throw new ApiProblemException($apiProblem);
-        }
+        $checker->check($customer);
 
         $manager->persist($customer);
         $manager->flush();
