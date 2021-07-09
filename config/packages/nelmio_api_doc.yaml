@@ -12,6 +12,53 @@ nelmio_api_doc:
                 in: header
         security:
             - Bearer: []
+        paths:
+            /api/login_check:
+                post:
+                    tags:
+                        - Authentication
+                    summary: Get JWT
+                    consumes:
+                        - application/json
+                    parameters:
+                        - in: body
+                          name: username
+                          description: user credentials
+                          schema:
+                            type: object
+                            required:
+                                -username
+                            properties:
+                                username:
+                                    type: string
+                                password:
+                                    type: string
+                            example: {"username":"SupplierDemo","password":"pwddemo"}
+                    responses: 
+                        '200':
+                          description: Ok - Returns JWT
+                          schema:
+                            type: object
+                            properties:
+                                token:
+                                    type: string
+                                    description: Token
+                                    example: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2MjU4MTkwNDcsImV4cCI6MTYyNTgyMjY0Nywicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoiU3VwcGxpZXJEZW1vIn0.i_t1Uv5U5UVrZzMSUENTaVdvaxWtJPFTRW2es803vFViYpCJl4OLPnm43lgzPDF3yYU5Xr0_izG5-lLx1Ve9f0lo5r_zTvt33X4ntAZxp3zH2D-ercM6Iu2YppoZLY9uQV4qjIXtaHcJCmncfkxV3dR_gMKJHYk_nVz4ze7i80MCKIboVNhUwQdMyJdSQPYX1dQcUoa7yMG5ZVC8PZYWLNONHVZ_dPnUUDUDMD-pm2-2zEat-SZH8_bbVaZ4uVoUXJXWorvYGHNP5aMosm6xXC4fhCeZQvKtOBMVqz0ZZbJLId_DyyoUfxtbRC64F8qnELdcQnEtogix_5nD0EDirw
+                        '400': 
+                          description: Bad Request
+                        '401':
+                          description: Invalid credentials
+            /api/doc.json:
+                get:
+                    tags:
+                        - Documentation
+                    summary: Get documentation
+                    responses:
+                        '200':
+                          description: Ok - Returns documentation in json format
+
+
     areas: # to filter documented areas
         path_patterns:
             - ^/api(?!/doc$) # Accepts routes under /api except /api/doc
+        

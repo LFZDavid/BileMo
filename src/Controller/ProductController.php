@@ -20,6 +20,7 @@ use Swagger\Annotations as SWG;
  *      response=404,
  *      description="Not Found"
  * )
+ * @Security(name="Bearer")
  */
 class ProductController extends AbstractController
 {
@@ -36,13 +37,13 @@ class ProductController extends AbstractController
      * )
      * @SWG\Parameter(
      *      name="page",
-     *      in="path",
+     *      in="query",
      *      type="integer",
      *      description="The page number to display"
      * )
      * @SWG\Parameter(
      *      name="brand",
-     *      in="path",
+     *      in="query",
      *      type="string",
      *      description="Filter can be use to search product by brand"
      * )
