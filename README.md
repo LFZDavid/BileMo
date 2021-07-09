@@ -31,18 +31,11 @@ more infos : _[symfony documentation](https://symfony.com/doc/current/setup.html
 * symfony/proxy-manager-bridge : "5.2.*"
 * liip/test-fixtures-bundle : "^1.11"
 * symfony/framework-bundle : "5.2.*"
-* symfony/property-access : "5.2.*"
-* symfony/security-bundle : "5.2.*"
 * doctrine/doctrine-bundle : "^2.3"
-* symfony/property-info : "5.2.*"
 * nelmio/api-doc-bundle : "^3.0"
 * doctrine/annotations : "^1.13"
 * symfony/serializer : "5.2.*"
 * symfony/validator : "5.2.*"
-* symfony/console : "5.2.*"
-* symfony/dotenv : "5.2.*"
-* symfony/flex : "^1.3.1"
-* symfony/yaml : "5.2.*"
 * doctrine/orm : "^2.8"
 ---
 
@@ -106,7 +99,9 @@ more infos : _[symfony documentation](https://symfony.com/doc/current/setup.html
 
 ## Documentation
 
-* Access documentation : send a GET request to : `api/doc.json` 
+* Access documentation : 
+    * With your web browser, go to : `/api/doc`
+    * or send a GET request to : `/api/doc.json` 
 
 
 ---
